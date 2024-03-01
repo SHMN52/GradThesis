@@ -62,8 +62,6 @@ wb.save('Current_Stage_Flights.xlsx')
 '''
 print(f'Current stage flights(stage:{current_stage}): {current_stage_flights}')
 
-hey
-
 for i in range(len(f_sorted)):
     print(f_sorted[i].flight_id),
     print(f_sorted[i].planned_departure),

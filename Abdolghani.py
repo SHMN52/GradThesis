@@ -1,4 +1,3 @@
-from nt import environ
 from pyomo.environ import *
 import pyomo.opt as pyo
 

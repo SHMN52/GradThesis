@@ -77,5 +77,3 @@ opt = pyo.SolverFactory('cplex')
 opt.solve(instance,tee=True)
 
 instance.display()
-
-# this another test

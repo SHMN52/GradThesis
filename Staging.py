@@ -59,7 +59,7 @@ def staging():
 
 
 
-    '''for row in range(len(current_stage_flights)):
+'''for row in range(len(current_stage_flights)):
         res.cell(row=row+2,column = 1).value = current_stage_flights[row].flight_id
         res.cell(row=row+2,column = 2).value = current_stage_flights[row].planned_departure
         res.cell(row=row+2,column = 3).value = current_stage_flights[row].planned_arrival
@@ -67,17 +67,4 @@ def staging():
         res.cell(row=row+2,column = 5).value = current_stage_flights[row].included_in_stage 
 
 
-
-
-    wb.save('Current_Stage_Flights.xlsx')
-
-
-
-    print(f'Current stage flights(stage:{current_stage}): {current_stage_flights}')
-
-    for i in range(len(f_sorted)):
-        print(f_sorted[i].flight_id),
-        print(f_sorted[i].planned_departure),
-        print(f_sorted[i].planned_arrival),
-        print(f_sorted[i].included_in_stage),
-        print(f_sorted[i].delay,'\n')'''
+'''

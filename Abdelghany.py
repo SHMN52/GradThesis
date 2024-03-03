@@ -64,16 +64,22 @@ model.Co5 = Constraint((model.F,model.R), rule=C5)
 model.Co6 = Constraint(model.F, rule=C6)
 model.Co7 = Constraint(model.F, rule=C7)
 
-
+'''
 # data import needs to be tuned
 data = DataPortal()
 data.load(filename='abstract1.dat', param=model.a, index=(model.I,model.J))
 data.load(filename='abstract1.dat', param=model.b, index=model.I)
 data.load(filename='abstract1.dat', param=model.c, index=model.J)
+'''
 
 
-instance = model.create_instance(data)
-opt = pyo.SolverFactory('cplex')
-opt.solve(instance,tee=True)
 
-instance.display()
+def optimize(stg_dat,other_param):
+    data=stg_dat+other_param #figuratively
+    instance = model.create_instance(data)
+    opt = pyo.SolverFactory('cplex')
+    opt.solve(instance,tee=True)
+    return instance.display
+
+
+#instance.display()

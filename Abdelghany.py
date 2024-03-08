@@ -1,5 +1,6 @@
 from pyomo.environ import *
 from main import flight
+import openpyxl as x
 def optimize(stg_dat,other_param):    
     
     import pyomo.opt as pyo
@@ -7,9 +8,11 @@ def optimize(stg_dat,other_param):
     model = AbstractModel()
 
     # Sets
-
-
-    model.R = Set(initialize=F_init)
+    acwb = x.load_workbook("aircraft.xlsx")
+    acws = acwb.active
+    def R_init():
+        return [acws[i][0] for i in range(2, acws.max_row)]
+    model.R = Set(initialize=R_init)
     
     def F_init():
         return [stg_dat[i].flight_id for i in range(len(stg_dat))]

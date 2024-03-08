@@ -1,6 +1,6 @@
 from main import flight
+import openpyxl as x
 def staging():
-    import openpyxl as x
     wb = x.load_workbook("flights.xlsx")
     ws = wb.active
 

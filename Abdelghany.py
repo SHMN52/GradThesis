@@ -20,11 +20,12 @@ def optimize(stg_dat,other_param):
 
     # Parameters
     def c_init(model, r, f):
-        for i in range(2, acws.max_row):
-
-            return r*r
-        else:
-            return 0.0
+        for r in range(2, acws.max_row):
+            for f in range(len(stg_dat)):
+                if (acws[r][8]==stg_dat[f].origin):
+                    return acws[r][5]*(stg_dat[f].planned_arrival-stg_dat[f].planned_departure)
+                else:
+                    return 999999
     model.c = Param(model.R, model.F, initialize=c_init)
     model.cd = Param(model.F, initialize=c_init)
     model.t = Param(model.F, initialize=c_init)

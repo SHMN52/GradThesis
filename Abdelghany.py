@@ -1,4 +1,5 @@
 from pyomo.environ import *
+from main import flight
 def optimize(stg_dat,other_param):    
     
     import pyomo.opt as pyo
@@ -6,8 +7,14 @@ def optimize(stg_dat,other_param):
     model = AbstractModel()
 
     # Sets
-    model.R = Set()
-    model.F = Set()
+
+
+    model.R = Set(initialize=F_init)
+    
+    def F_init():
+        return [stg_dat[i].flight_id for i in range(len(stg_dat))]
+    model.F = Set(initialize=F_init)
+
 
     # Parameters
     model.c = Param(model.R, model.F)

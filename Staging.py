@@ -1,3 +1,4 @@
+from main import flight
 def staging():
     import openpyxl as x
     wb = x.load_workbook("flights.xlsx")
@@ -5,14 +6,6 @@ def staging():
 
 
     current_stage=1
-
-    class flight:
-        def __init__(self,flight_id,planned_departure,planned_arrival,included_in_stage,delay):
-            self.flight_id=flight_id
-            self.planned_departure=planned_departure
-            self.planned_arrival=planned_arrival
-            self.included_in_stage=included_in_stage
-            self.delay=delay
 
     f_list=[]
     for row in range(2, ws.max_row):

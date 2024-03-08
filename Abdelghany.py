@@ -10,25 +10,30 @@ def optimize(stg_dat,other_param):
     # Sets rf import
     acwb = x.load_workbook("aircraft.xlsx")
     acws = acwb.active
-    def R_init():
+    def R_init(m):
         return [acws[i][0] for i in range(2, acws.max_row)]
     model.R = Set(initialize=R_init)
     
-    def F_init():
+    def F_init(m):
         return [stg_dat[i].flight_id for i in range(len(stg_dat))]
     model.F = Set(initialize=F_init)
 
 
     # Parameters
-    model.c = Param(model.R, model.F)
-    model.cd = Param(model.F)
-    model.t = Param(model.F)
-    model.cc = Param(model.F)
-    model.b = Param(model.R, model.F)
-    model.a = Param(model.R, model.F)
-    model.v = Param(model.R)
-    model.UBn = Param(model.F)
-    model.T = Param(model.F)
+    def c_init(model, r, f):
+        if r == f:
+            return r*r
+        else:
+            return 0.0
+    model.c = Param(model.R, model.F, initialize=c_init)
+    model.cd = Param(model.F, initialize=c_init)
+    model.t = Param(model.F, initialize=c_init)
+    model.cc = Param(model.F, initialize=c_init)
+    model.b = Param(model.R, model.F, initialize=c_init)
+    model.a = Param(model.R, model.F, initialize=c_init)
+    model.v = Param(model.R, initialize=c_init)
+    model.UBn = Param(model.F, initialize=c_init)
+    model.T = Param(model.F, initialize=c_init)
 
     # Variables
     model.x = Var((model.R,model.F), domain=Binary)

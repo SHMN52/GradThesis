@@ -1,5 +1,4 @@
 from pyomo.environ import *
-from main import flight
 import openpyxl as x
 def optimize(stg_dat,other_param):    
     
@@ -21,7 +20,8 @@ def optimize(stg_dat,other_param):
 
     # Parameters
     def c_init(model, r, f):
-        if r == f:
+        for i in range(2, acws.max_row):
+
             return r*r
         else:
             return 0.0

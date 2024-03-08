@@ -7,7 +7,7 @@ def optimize(stg_dat,other_param):
 
     model = AbstractModel()
 
-    # Sets
+    # Sets rf import
     acwb = x.load_workbook("aircraft.xlsx")
     acws = acwb.active
     def R_init():

@@ -48,18 +48,10 @@ def staging():
                 ws[row][4].value = current_stage
 
     wb.save("flights.xlsx")'''
-    
     return current_stage_flights
+    
+#for i in range(len(staging())):
+#    print(staging()[i].origin)
 
 
 
-
-'''for row in range(len(current_stage_flights)):
-        res.cell(row=row+2,column = 1).value = current_stage_flights[row].flight_id
-        res.cell(row=row+2,column = 2).value = current_stage_flights[row].planned_departure
-        res.cell(row=row+2,column = 3).value = current_stage_flights[row].planned_arrival
-        res.cell(row=row+2,column = 4).value = current_stage_flights[row].delay
-        res.cell(row=row+2,column = 5).value = current_stage_flights[row].included_in_stage 
-
-
-'''

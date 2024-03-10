@@ -1,6 +1,6 @@
 from pyomo.environ import *
 import openpyxl as x
-def optimize(stg_dat,other_param):    
+def optimize(stg_dat):    
     
     import pyomo.opt as pyo
 
@@ -9,32 +9,55 @@ def optimize(stg_dat,other_param):
     # Sets rf import
     acwb = x.load_workbook("aircraft.xlsx")
     acws = acwb.active
-    def R_init(m):
+    def R_init(model):
         return [acws[i][0] for i in range(2, acws.max_row)]
     model.R = Set(initialize=R_init)
     
-    def F_init(m):
+    def F_init(model):
         return [stg_dat[i].flight_id for i in range(len(stg_dat))]
     model.F = Set(initialize=F_init)
 
 
     # Parameters
     def c_init(model, r, f):
-        for r in range(2, acws.max_row):
-            for f in range(len(stg_dat)):
-                if (acws[r][8]==stg_dat[f].origin):
-                    return acws[r][5]*(stg_dat[f].planned_arrival-stg_dat[f].planned_departure)
+        for i in range(2, acws.max_row):
+            for j in range(len(stg_dat)):
+                if (acws[i][8]==stg_dat[j].origin and acws[i][0]==r and stg_dat[j].flight_id==f):
+                    return acws[i][5]*(stg_dat[j].planned_arrival-stg_dat[j].planned_departure)/60
                 else:
                     return 999999
     model.c = Param(model.R, model.F, initialize=c_init)
-    model.cd = Param(model.F, initialize=c_init)
-    model.t = Param(model.F, initialize=c_init)
-    model.cc = Param(model.F, initialize=c_init)
-    model.b = Param(model.R, model.F, initialize=c_init)
-    model.a = Param(model.R, model.F, initialize=c_init)
-    model.v = Param(model.R, initialize=c_init)
-    model.UBn = Param(model.F, initialize=c_init)
-    model.T = Param(model.F, initialize=c_init)
+    
+    model.cd = Param(model.F, initialize=(0.75*120))
+    
+    def t_init(model, f):
+        for i in range(len(stg_dat)):
+            if stg_dat[i].flight_id == f:
+                return stg_dat[i].planned_departure
+            else:
+                return 99999
+    model.t = Param(model.F, initialize=t_init)
+            
+    model.cc = Param(model.F, initialize=5000)
+
+    model.b = Param(model.R, model.F, initialize=1)
+
+    def a_init(model, r, f):
+        for i in range(2, acws.max_row):
+            for j in range(len(stg_dat)):
+                if (acws[i][8]==stg_dat[j].origin and acws[i][0]==r and stg_dat[j].flight_id==f):
+                    return 0.5
+                else:
+                    return 99999
+    model.a = Param(model.R, model.F, initialize=a_init)
+
+    def T_init(model, f):
+        for j in range(len(stg_dat)):
+            if stg_dat[j].flight_id==f :
+                return (stg_dat[j].planned_arrival-stg_dat[j].planned_departure)
+            else:
+                return 99999
+    model.T = Param(model.F, initialize=T_init)
 
     # Variables
     model.x = Var((model.R,model.F), domain=Binary)
@@ -63,13 +86,10 @@ def optimize(stg_dat,other_param):
     def C4(model,f, r):
         return model.m[f] >= model.x[r,f] * model.a[r,f]
 
-    def C5(model,f, r):
-        return model.n[f] <= model.x[r,f] * model.v[r] + (1 - model.x[r,f]) * model.UBn[f]
-
-    def C6(model, f):
+    def C5(model, f):
         return model.n[f] == model.m[f] + model.T[f]
 
-    def C7(model, f):
+    def C6(model, f):
         return model.m[f] >= model.t[f]
 
 
@@ -78,9 +98,8 @@ def optimize(stg_dat,other_param):
     model.Co2 = Constraint(model.R, rule=C2)
     model.Co3 = Constraint(model.F, rule=C3)
     model.Co4 = Constraint((model.F,model.R), rule=C4)
-    model.Co5 = Constraint((model.F,model.R), rule=C5)
+    model.Co5 = Constraint(model.F, rule=C5)
     model.Co6 = Constraint(model.F, rule=C6)
-    model.Co7 = Constraint(model.F, rule=C7)
 
     '''
     # data import needs to be tuned
@@ -97,5 +116,6 @@ def optimize(stg_dat,other_param):
     instance = model.create_instance()
     opt = pyo.SolverFactory('cplex')
     opt.solve(instance,tee=True)
+    instance.display()
     return instance
-    #instance.display()
+    #

@@ -29,14 +29,14 @@ def staging():
 
     # step 2 : finding the critical flights (disrupted and not in previous stages)
     current_stage_flights=[]
-    for i in range(len(f_sorted)):
+    for i in range(len(f_sorted)-1):
         if(f_sorted[i].delay > 0 and f_sorted[i].included_in_stage==0 ):
             current_stage_flights.append(f_sorted[i])
             break
 
     # step 3 : listing current stage flights (not in prevoius stages and depart before the arrival of critical flight)
     
-    for i in range(len(f_sorted)):
+    for i in range(len(f_sorted)-1):
         if(f_sorted[i].included_in_stage==0 and f_sorted[i].planned_departure < current_stage_flights[0].planned_arrival):
             f_sorted[i].included_in_stage = current_stage
             current_stage_flights.append(f_sorted[i])
@@ -49,9 +49,8 @@ def staging():
 
     wb.save("flights.xlsx")'''
     return current_stage_flights
-    
-#for i in range(len(staging())):
-#    print(staging()[i].origin)
-
-
-
+'''    
+st=staging()
+for i in range(len(st)-1):
+    print(st[i].origin)
+'''

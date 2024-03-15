@@ -1,22 +1,18 @@
-from email.policy import default
-from re import S
 from pyomo.environ import *
-import openpyxl as x
 import pyomo.opt as pyo
-def optimize(stg_dat):    
+def optimize(stg_dat):
+    from main import acws   
     model = ConcreteModel()
 
     # Sets rf import
-    acwb = x.load_workbook("aircraft.xlsx")
-    acws = acwb.active
+   
     def R_init(model):
        return [acws[i][0].value for i in range(2, acws.max_row)]
     model.R = Set(initialize=R_init)
-    #model.R.pprint()
+    
     def F_init(model):
         return [stg_dat[i].flight_id for i in range(len(stg_dat)-1)]
     model.F = Set(initialize=F_init)
-    #model.F.pprint()
     
     
     def c_init(model, r, f):
@@ -36,7 +32,7 @@ def optimize(stg_dat):
             if stg_dat[i].flight_id == f:
                 return stg_dat[i].planned_departure
     model.t = Param(model.F, initialize=t_init)
-    
+
     
     model.cc = Param(model.F, initialize=5000)
     
@@ -105,10 +101,6 @@ def optimize(stg_dat):
 
     
     opt = pyo.SolverFactory('cplex')
-    opt.solve(model,tee=True)
-    model.L.display()
-    model.m.display()
-    model.n.display()
-
-    return 0
-    #
+    result=opt.solve(model,tee=True)
+    return model
+    

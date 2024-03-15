@@ -1,10 +1,7 @@
-import openpyxl as x
+
 def staging():
-    wb = x.load_workbook("flights.xlsx")
-    ws = wb.active
-
-
-    current_stage=1
+    from main import current_stage
+    from main import ws
 
 
     class flight:
@@ -42,15 +39,7 @@ def staging():
             current_stage_flights.append(f_sorted[i])
             
 
-    '''for row in range(2, ws.max_row):
-        for i in range(len(current_stage_flights)):
-            if (ws[row][0].value == current_stage_flights[i].flight_id):
-                ws[row][4].value = current_stage
-
-    wb.save("flights.xlsx")'''
+    
     return current_stage_flights
-'''    
-st=staging()
-for i in range(len(st)-1):
-    print(st[i].origin)
-'''
+   
+

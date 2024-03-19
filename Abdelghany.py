@@ -44,7 +44,7 @@ def optimize(stg_dat):
                 for j in range(len(stg_dat)-1):
                     if stg_dat[j].flight_id==f:
                         if acws[i][8].value==stg_dat[j].origin:
-                            return 0.5
+                            return (acws[i][7].value + stg_dat[j].delay)
         return 99999
     model.a = Param(model.R, model.F, initialize=a_init)
     

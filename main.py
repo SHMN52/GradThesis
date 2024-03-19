@@ -37,7 +37,7 @@ while current_stage <20:
     
              
     current_stage+=1
-wb.save("flights.xlsx")
-acwb.save("aircraft.xlsx")
+    wb.save("flights.xlsx")
+    acwb.save("aircraft.xlsx")
 
 

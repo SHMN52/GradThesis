@@ -30,15 +30,21 @@ def staging():
         if(f_sorted[i].delay > 0 and f_sorted[i].included_in_stage==0 ):
             current_stage_flights.append(f_sorted[i])
             break
-
+    if len(current_stage_flights) ==0:
+        for i in range(len(f_sorted)-1):
+            if(f_sorted[i].included_in_stage==0):
+                current_stage_flights.append(f_sorted[i])
+                break
     # step 3 : listing current stage flights (not in prevoius stages and depart before the arrival of critical flight)
     
     for i in range(len(f_sorted)-1):
         if(f_sorted[i].included_in_stage==0 and f_sorted[i].planned_departure < current_stage_flights[0].planned_arrival):
             f_sorted[i].included_in_stage = current_stage
             current_stage_flights.append(f_sorted[i])
-            
-
+    if len(current_stage_flights) ==1:
+        for i in range(len(f_sorted)-1):
+            if(f_sorted[i].included_in_stage==0):
+                current_stage_flights.append(f_sorted[i])
     
     return current_stage_flights
    

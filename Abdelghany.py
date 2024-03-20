@@ -28,7 +28,7 @@ def optimize(stg_dat):
     model.cd = Param(model.F, initialize=(0.75*120))
     
     def t_init(model, f):
-        for i in range(len(stg_dat)):
+        for i in range(len(stg_dat)-1):
             if stg_dat[i].flight_id == f:
                 return stg_dat[i].planned_departure
     model.t = Param(model.F, initialize=t_init)
@@ -44,12 +44,16 @@ def optimize(stg_dat):
                 for j in range(len(stg_dat)-1):
                     if stg_dat[j].flight_id==f:
                         if acws[i][8].value==stg_dat[j].origin:
-                            return acws[i][7].value + stg_dat[j].delay
+                            a1 = acws[i][7].value + stg_dat[j].delay
+                            a2 = stg_dat[j].planned_arrival + stg_dat[j].delay
+                            if a1>a2: return a1
+                            else : return a2
+                            
         return 99999
     model.a = Param(model.R, model.F, initialize=a_init)
     
     def T_init(model, f):
-        for j in range(len(stg_dat)):
+        for j in range(len(stg_dat)-1):
             if stg_dat[j].flight_id==f :
                 return (stg_dat[j].planned_arrival-stg_dat[j].planned_departure)
     model.T = Param(model.F, initialize=T_init)

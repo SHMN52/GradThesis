@@ -9,18 +9,18 @@ from Abdelghany import optimize
 
 current_stage=1
 
-while current_stage <20:
+while current_stage <2:
     st = staging()
     for row in range(2, ws.max_row):
-        for i in range(len(st)):
+        for i in range(len(st)-1):
             if (ws[row][0].value == st[i].flight_id):
                 ws[row][4].value = current_stage
     op=optimize(st)
     for i in op.F:
-        for row1 in range(2, ws.max_row):
-            if ws[row1][0].value==i:
-                for j in op.R:
-                    if value(op.x[j,i])==1:
+        for j in op.R:
+            if value(op.x[j,i])==1:
+                for row1 in range(2, ws.max_row):
+                    if ws[row1][0].value==i:
                         for row2 in range(2, acws.max_row):
                             if acws[row2][0].value==j:
                                 acws[row2][7].value=value(op.n[i])

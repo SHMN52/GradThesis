@@ -1,21 +1,26 @@
 import openpyxl as x
+from pyomo.environ import *
 wb = x.load_workbook("flights.xlsx")
 ws = wb.active
 acwb = x.load_workbook("aircraft.xlsx")
 acws = acwb.active
-from pyomo.environ import *
 from Staging import staging
 from Abdelghany import optimize
 
+
 current_stage=1
 
-while current_stage <2:
-    st = staging()
-    for row in range(2, ws.max_row):
-        for i in range(len(st)-1):
-            if (ws[row][0].value == st[i].flight_id):
-                ws[row][4].value = current_stage
-    op=optimize(st)
+while current_stage <21:
+    
+    st = staging(current_stage,ws)
+    print('current stage=',current_stage)
+    print('st = staging()')
+    for i in range(len(st)-1):
+            for row in range(2, ws.max_row):
+                if (ws[row][0].value == st[i].flight_id):
+                    ws[row][4].value = current_stage
+    op=optimize(st,acws)
+    print('op=optimize(st)')
     for i in op.F:
         for j in op.R:
             if value(op.x[j,i])==1:
@@ -27,17 +32,17 @@ while current_stage <2:
                                 acws[row2][8].value=ws[row1][6].value
                                 ws[row1][7].value=value(op.m[i])
                                 ws[row1][8].value=value(op.n[i])
-
+    
     loop_kpi=1
     for row in range(2, ws.max_row):
         loop_kpi*=ws[row][4].value
     if loop_kpi!=0:
         break
-
     
-             
     current_stage+=1
+    
     wb.save("flights.xlsx")
     acwb.save("aircraft.xlsx")
+    
 
 

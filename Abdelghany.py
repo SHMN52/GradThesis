@@ -1,7 +1,7 @@
 from pyomo.environ import *
 import pyomo.opt as pyo
-def optimize(stg_dat):
-    from main import acws   
+def optimize(stg_dat,acws):
+    
     model = ConcreteModel()
 
     # Sets rf import
@@ -34,7 +34,7 @@ def optimize(stg_dat):
     model.t = Param(model.F, initialize=t_init)
 
     
-    model.cc = Param(model.F, initialize=5000)
+    model.cc = Param(model.F, initialize=50000)
     
     model.b = Param(model.R, model.F, initialize=1)
     
@@ -45,7 +45,7 @@ def optimize(stg_dat):
                     if stg_dat[j].flight_id==f:
                         if acws[i][8].value==stg_dat[j].origin:
                             a1 = acws[i][7].value + stg_dat[j].delay
-                            a2 = stg_dat[j].planned_arrival + stg_dat[j].delay
+                            a2 = stg_dat[j].planned_departure + stg_dat[j].delay
                             if a1>a2: return a1
                             else : return a2
                             
@@ -104,7 +104,6 @@ def optimize(stg_dat):
     
 
     
-    opt = pyo.SolverFactory('cplex')
-    result=opt.solve(model,tee=True)
+    pyo.SolverFactory('cplex').solve(model,tee=True)
     return model
     

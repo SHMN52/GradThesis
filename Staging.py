@@ -1,7 +1,7 @@
 
-def staging():
-    from main import current_stage
-    from main import ws
+def staging(curr_stg,ws):
+    
+    
 
 
     class flight:
@@ -39,7 +39,7 @@ def staging():
     
     for i in range(len(f_sorted)-1):
         if(f_sorted[i].included_in_stage==0 and f_sorted[i].planned_departure < current_stage_flights[0].planned_arrival):
-            f_sorted[i].included_in_stage = current_stage
+            f_sorted[i].included_in_stage = curr_stg
             current_stage_flights.append(f_sorted[i])
     if len(current_stage_flights) ==1:
         for i in range(len(f_sorted)-1):

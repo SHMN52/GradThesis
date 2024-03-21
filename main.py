@@ -10,7 +10,7 @@ from Abdelghany import optimize
 
 current_stage=1
 
-while current_stage <21:
+while current_stage <49:
     
     
     print('current stage=',current_stage)
@@ -23,15 +23,15 @@ while current_stage <21:
     op=optimize(st,acws)
     for i in op.F:
         for j in op.R:
-            if value(op.x[j,i])==1:
-                for row1 in range(2, ws.max_row):
-                    if ws[row1][0].value==i:
-                        for row2 in range(2, acws.max_row):
-                            if acws[row2][0].value==j:
-                                acws[row2][7].value=value(op.n[i])
-                                acws[row2][8].value=ws[row1][6].value
-                                ws[row1][7].value=value(op.m[i])
-                                ws[row1][8].value=value(op.n[i])
+                if value(op.x[j,i])==1:
+                    for row1 in range(2, ws.max_row):
+                        if ws[row1][0].value==i:
+                            for row2 in range(2, acws.max_row):
+                                if acws[row2][0].value==j:
+                                    acws[row2][7].value=value(op.n[i])
+                                    acws[row2][8].value=ws[row1][6].value
+                                    ws[row1][7].value=value(op.m[i])
+                                    ws[row1][8].value=value(op.n[i])
     
     loop_kpi=1
     for row in range(2, ws.max_row):

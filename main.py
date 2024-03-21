@@ -12,15 +12,15 @@ current_stage=1
 
 while current_stage <21:
     
-    st = staging(current_stage,ws)
+    
     print('current stage=',current_stage)
-    print('st = staging()')
+    st = staging(current_stage,ws)
     for i in range(len(st)-1):
             for row in range(2, ws.max_row):
                 if (ws[row][0].value == st[i].flight_id):
                     ws[row][4].value = current_stage
+    
     op=optimize(st,acws)
-    print('op=optimize(st)')
     for i in op.F:
         for j in op.R:
             if value(op.x[j,i])==1:

@@ -5,18 +5,19 @@ def staging(curr_stg,ws):
 
 
     class flight:
-        def __init__(self,flight_id,planned_departure,planned_arrival,included_in_stage,delay,origin,dest):
+        def __init__(self,flight_id,planned_departure,planned_arrival,delay,origin,dest):
             self.flight_id=flight_id
             self.planned_departure=planned_departure
             self.planned_arrival=planned_arrival
-            self.included_in_stage=included_in_stage
             self.delay=delay
             self.origin=origin
             self.dest=dest
     f_list=[]
     for row in range(2, ws.max_row):
-        f=flight(ws[row][0].value,ws[row][1].value,ws[row][2].value,ws[row][4].value,ws[row][3].value,ws[row][5].value,ws[row][6].value)
-        f_list.append(f)
+        if ws[row][4].value == 0:
+            f=flight(ws[row][0].value,ws[row][1].value,ws[row][2].value,ws[row][3].value,ws[row][5].value,ws[row][6].value)
+            f_list.append(f)
+            
 
 
     # step 1 : sorting flights chronologicaly (based on departure times)
@@ -35,9 +36,9 @@ def staging(curr_stg,ws):
     # step 3 : listing current stage flights (not in prevoius stages and depart before the arrival of critical flight)
     
     for i in range(len(f_sorted)-1):
-        if(f_sorted[i].included_in_stage==0 and f_sorted[i].planned_departure <= curr_stg*30 ):
-            f_sorted[i].included_in_stage = curr_stg
+        if(f_sorted[i].planned_departure <= curr_stg*30):
             current_stage_flights.append(f_sorted[i])
+            
     
     
     return current_stage_flights

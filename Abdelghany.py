@@ -3,7 +3,7 @@ import pyomo.opt as pyo
 def optimize(stg_dat,acws):
     
     model = ConcreteModel()
-
+    
     # Sets rf import
    
     def R_init(model):
@@ -19,10 +19,9 @@ def optimize(stg_dat,acws):
     def c_init(model, r, f):
         for i in range(2, acws.max_row):
             if acws[i][0].value==r :
-                for j in range(len(model.F)-1):
+                for j in range(len(stg_dat)-1):
                     if stg_dat[j].flight_id==f:
-                        if acws[i][8].value==stg_dat[j].origin and acws[i][4].value >= stg_dat[j].planned_arrival-stg_dat[j].planned_departure :
-                            return acws[i][5].value*(stg_dat[j].planned_arrival-stg_dat[j].planned_departure)/60
+                        return acws[i][5].value*(stg_dat[j].planned_arrival-stg_dat[j].planned_departure)/60
         return 999999999        
     model.c = Param(model.R, model.F, initialize=c_init)
     
@@ -36,21 +35,27 @@ def optimize(stg_dat,acws):
 
     
     model.cc = Param(model.F, initialize=50000)
-    
-    model.b = Param(model.R, model.F, initialize=1)
+    model.UBn = Param(model.F, initialize=1460)
+
+    def b_init(model, r, f):
+        for i in range(2, acws.max_row):
+            if acws[i][0].value==r :
+                for j in range(len(stg_dat)-1):
+                    if stg_dat[j].flight_id==f:
+                        if acws[i][8].value==stg_dat[j].origin and acws[i][4].value >= stg_dat[j].planned_arrival-stg_dat[j].planned_departure :
+                            return 1
+        return 0
+    model.b = Param(model.R, model.F, initialize=b_init)
     
     def a_init(model, r, f):
         for i in range(2, acws.max_row):
             if acws[i][0].value==r:
                 for j in range(len(stg_dat)-1):
                     if stg_dat[j].flight_id==f:
-                        if acws[i][8].value==stg_dat[j].origin:
-                            a1 = acws[i][7].value + stg_dat[j].delay
-                            a2 = stg_dat[j].planned_departure + stg_dat[j].delay
-                            if a1>a2: return a1
-                            else : return a2
-                            
+                        a = acws[i][7].value + stg_dat[j].delay
+                        return a
         return 999999999
+    
     model.a = Param(model.R, model.F, initialize=a_init)
     
     def T_init(model, f):
@@ -85,11 +90,14 @@ def optimize(stg_dat,acws):
 
     def C4(model,r, f):
         return model.m[f] >= model.x[r,f] * model.a[r,f]
-
+    
     def C5(model, f):
-        return model.n[f] == model.m[f] + model.T[f]
+        return model.n[f] <= (1-sum(model.x[r,f] for r in model.R)) * model.UBn[f]
 
     def C6(model, f):
+        return model.n[f] == model.m[f] + model.T[f]
+
+    def C7(model, f):
         return model.m[f] >= model.t[f]
 
 
@@ -100,9 +108,10 @@ def optimize(stg_dat,acws):
     model.Co4 = Constraint(model.R,model.F, rule=C4)
     model.Co5 = Constraint(model.F, rule=C5)
     model.Co6 = Constraint(model.F, rule=C6)
+    model.Co7 = Constraint(model.F, rule=C7)
     
 
-    
+    model.Co5.deactivate()
 
     
     pyo.SolverFactory('cplex').solve(model,tee=True)

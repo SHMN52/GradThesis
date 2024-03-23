@@ -11,7 +11,7 @@ def optimize(stg_dat,acws):
     model.R = Set(initialize=R_init)
     
     def F_init(model):
-        return [stg_dat[i].flight_id for i in range(len(stg_dat)-1)]
+        return [stg_dat[i].flight_id for i in range(len(stg_dat))]
     model.F = Set(initialize=F_init)
 
     
@@ -19,7 +19,7 @@ def optimize(stg_dat,acws):
     def c_init(model, r, f):
         for i in range(2, acws.max_row):
             if acws[i][0].value==r :
-                for j in range(len(stg_dat)-1):
+                for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:
                         return acws[i][5].value*(stg_dat[j].planned_arrival-stg_dat[j].planned_departure)/60
         return 999999999        
@@ -28,9 +28,9 @@ def optimize(stg_dat,acws):
     model.cd = Param(model.F, initialize=(0.75*120))
     
     def t_init(model, f):
-        for i in range(len(stg_dat)-1):
+        for i in range(len(stg_dat)):
             if stg_dat[i].flight_id == f:
-                return stg_dat[i].planned_departure
+                return stg_dat[i].planned_departure+stg_dat[i].delay
     model.t = Param(model.F, initialize=t_init)
 
     
@@ -40,7 +40,7 @@ def optimize(stg_dat,acws):
     def b_init(model, r, f):
         for i in range(2, acws.max_row):
             if acws[i][0].value==r :
-                for j in range(len(stg_dat)-1):
+                for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:
                         if acws[i][8].value==stg_dat[j].origin and acws[i][4].value >= stg_dat[j].planned_arrival-stg_dat[j].planned_departure :
                             return 1
@@ -50,16 +50,16 @@ def optimize(stg_dat,acws):
     def a_init(model, r, f):
         for i in range(2, acws.max_row):
             if acws[i][0].value==r:
-                for j in range(len(stg_dat)-1):
+                for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:
-                        a = acws[i][7].value + stg_dat[j].delay
+                        a = acws[i][7].value
                         return a
         return 999999999
     
     model.a = Param(model.R, model.F, initialize=a_init)
     
     def T_init(model, f):
-        for j in range(len(stg_dat)-1):
+        for j in range(len(stg_dat)):
             if stg_dat[j].flight_id==f :
                 return (stg_dat[j].planned_arrival-stg_dat[j].planned_departure)
     model.T = Param(model.F, initialize=T_init)

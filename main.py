@@ -15,7 +15,7 @@ while current_stage <49:
     
     print('current stage=',current_stage)
     st = staging(current_stage,ws)
-    for i in range(len(st)-1):
+    for i in range(len(st)):
             for row in range(2, ws.max_row):
                 if (ws[row][0].value == st[i].flight_id):
                     ws[row][4].value = current_stage
@@ -33,11 +33,7 @@ while current_stage <49:
                                     ws[row1][7].value=value(op.m[i])
                                     ws[row1][8].value=value(op.n[i])
     
-    loop_kpi=1
-    for row in range(2, ws.max_row):
-        loop_kpi*=ws[row][4].value
-    if loop_kpi!=0:
-        break
+    
     
     current_stage+=1
     

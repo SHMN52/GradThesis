@@ -5,7 +5,8 @@ def optimize(stg_dat,acws):
     model = ConcreteModel()
     
     # Sets rf import
-   
+    M = 999999999
+
     def R_init(model):
        return [acws[i][0].value for i in range(2, acws.max_row)]
     model.R = Set(initialize=R_init)
@@ -22,7 +23,7 @@ def optimize(stg_dat,acws):
                 for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:
                         return acws[i][5].value*(stg_dat[j].planned_arrival-stg_dat[j].planned_departure)/60
-        return 999999999        
+        return M        
     model.c = Param(model.R, model.F, initialize=c_init)
     
     model.cd = Param(model.F, initialize=(0.75*120))
@@ -52,9 +53,8 @@ def optimize(stg_dat,acws):
             if acws[i][0].value==r:
                 for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:
-                        a = acws[i][7].value
-                        return a
-        return 999999999
+                        return acws[i][7].value
+        return M
     
     model.a = Param(model.R, model.F, initialize=a_init)
     

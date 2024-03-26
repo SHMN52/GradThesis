@@ -8,7 +8,7 @@ def optimize(stg_dat,acws):
     M = 999999999
 
     def R_init(model):
-       return [acws[i][0].value for i in range(2, acws.max_row)]
+       return [acws[i][0].value for i in range(2, acws.max_row+1)]
     model.R = Set(initialize=R_init)
     
     def F_init(model):
@@ -18,7 +18,7 @@ def optimize(stg_dat,acws):
     
     
     def c_init(model, r, f):
-        for i in range(2, acws.max_row):
+        for i in range(2, acws.max_row+1):
             if acws[i][0].value==r :
                 for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:
@@ -39,7 +39,7 @@ def optimize(stg_dat,acws):
     model.UBn = Param(model.F, initialize=1460)
 
     def b_init(model, r, f):
-        for i in range(2, acws.max_row):
+        for i in range(2, acws.max_row+1):
             if acws[i][0].value==r :
                 for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:
@@ -49,7 +49,7 @@ def optimize(stg_dat,acws):
     model.b = Param(model.R, model.F, initialize=b_init)
     
     def a_init(model, r, f):
-        for i in range(2, acws.max_row):
+        for i in range(2, acws.max_row+1):
             if acws[i][0].value==r:
                 for j in range(len(stg_dat)):
                     if stg_dat[j].flight_id==f:

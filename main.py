@@ -21,18 +21,28 @@ while current_stage <= 48:
                     ws[row][4].value = current_stage
     
     op=optimize(st,acws)
-    for i in op.R:
-        for j in op.F:
-                if value(op.x[i,j])==1:
-                    for row1 in range(2, ws.max_row+1):
-                        if ws[row1][0].value==j:
-                            for row2 in range(2, acws.max_row+1):
-                                if acws[row2][0].value==i:
-                                    acws[row2][7].value=value(op.n[j])
-                                    acws[row2][8].value=ws[row1][6].value
-                                    ws[row1][7].value=value(op.m[j])
-                                    ws[row1][8].value=value(op.n[j])
     
+    for j in op.F:
+        k=0
+        for i in op.R:
+            k+=value(op.x[i,j])
+            if value(op.x[i,j])==1:
+                for row1 in range(2, ws.max_row+1):
+                    if ws[row1][0].value==j:
+                        for row2 in range(2, acws.max_row+1):
+                            if  acws[row2][0].value==i:
+                                acws[row2][7].value=value(op.n[j])
+                                acws[row2][8].value=ws[row1][6].value
+                                
+                                
+        for row in range(2, ws.max_row+1):
+            if  ws[row][0].value==j:
+                ws[row][9].value= k
+                ws[row][10].value= value(op.L[j])
+                if k==1:
+                    ws[row][7].value=value(op.m[j])
+                    ws[row][8].value=value(op.n[j])
+                                     
     
     
     current_stage+=1

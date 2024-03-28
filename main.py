@@ -18,7 +18,7 @@ while current_stage <= 48:
     st = staging(current_stage,ws)
     for i in range(len(st)):
             for row in range(2, ws.max_row+1):
-                if (ws[row][0].value == st[i].flight_id):
+                if (int(ws[row][0].value) == int(st[i].flight_id)):
                     ws[row][4].value = current_stage
     
     op=optimize(st,acws)

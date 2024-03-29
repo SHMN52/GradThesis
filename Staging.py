@@ -14,7 +14,7 @@ def staging(curr_stg,ws):
             self.dest=dest
     f_list=[]
     for row in range(2, ws.max_row+1):
-        if int(ws[row][4].value) == int(0):
+        if ws[row][4].value == 0:
             f=flight(ws[row][0].value,ws[row][1].value,ws[row][2].value,ws[row][3].value,ws[row][5].value,ws[row][6].value)
             f_list.append(f)
             

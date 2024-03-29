@@ -8,7 +8,7 @@ from Staging import staging
 from Abdelghany import optimize
 
 
-current_stage=17
+current_stage=1
 
 
 while current_stage <= 48:

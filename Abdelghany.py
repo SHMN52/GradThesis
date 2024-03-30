@@ -43,7 +43,7 @@ def optimize(stg_dat,acws,apws):
 
     
     model.cc = Param(model.F, initialize = 50000)
-    model.UBn = Param(model.F, initialize = 1460)
+    
 
     def b_init(model, r, f):
         for i in range(2, acws.max_row+1):

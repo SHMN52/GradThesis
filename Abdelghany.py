@@ -170,10 +170,10 @@ def optimize(stg_dat,acws,apws):
         return sum(model.x[r,f] for r in model.R for f in fap) <= model.depCap[p,ap] + M*(1-model.delt22[p,ap])
     
     def C13(model, p, ap):
-        return model.delt11[p,ap] <= model.delt12[p,ap]
+        return model.delt12[p,ap] <= model.delt11[p,ap]
     
     def C14(model, p, ap):
-        return model.delt12[p,ap] <= model.delt22[p,ap]
+        return model.delt22[p,ap] <= model.delt21[p,ap]
 
     
 

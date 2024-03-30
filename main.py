@@ -13,7 +13,7 @@ from Abdelghany import optimize
 current_stage=1
 
 
-while current_stage <= 48:
+while current_stage < 2:
     
     
     print('current stage=',current_stage)

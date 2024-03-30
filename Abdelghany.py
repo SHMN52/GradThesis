@@ -132,13 +132,13 @@ def optimize(stg_dat,acws,apws):
     def C7(model, f, p, ap):
         for j in range(len(stg_dat)):
             if stg_dat[j].origin == ap and stg_dat[j].flight_id == f  :
-                   return 60*(p - 1) <= model.m[f] + M*(1-model.delt11[p,ap])
+                return model.delt11[p,ap] * 60*(p - 1) <= model.m[f]
         return model.delt11[p,ap] >= 0
 
     def C8(model, f, p, ap):
         for j in range(len(stg_dat)):
             if stg_dat[j].origin == ap and stg_dat[j].flight_id == f  :
-                   return 60 * p >= model.m[f] - M*(1-model.delt11[p,ap])
+                return model.delt11[p,ap] * 60 * p >= model.m[f]
         return model.delt11[p,ap] >= 0
         
     def C9(model, p, ap):
@@ -147,18 +147,18 @@ def optimize(stg_dat,acws,apws):
             for j in range(len(stg_dat)):
                 if stg_dat[j].origin == ap and stg_dat[j].flight_id == fp  :
                     fap.append(fp)
-        return sum(model.x[r,f] for r in model.R for f in fap) <= model.depCap[p,ap] + M*(1-model.delt12[p,ap])   
+        return sum(model.x[r,f] for r in model.R for f in fap) <= model.depCap[p,ap] * model.delt12[p,ap]   
         
     def C10(model, f, p, ap):
         for j in range(len(stg_dat)):
             if stg_dat[j].dest == ap and stg_dat[j].flight_id == f  :
-                   return 60*(p - 1) <= model.n[f] + M*(1-model.delt21[p,ap])
+                return model.delt21[p,ap] * 60 *(p - 1) <= model.n[f]
         return model.delt21[p,ap] >= 0
     
     def C11(model, f, p, ap):
         for j in range(len(stg_dat)):
             if stg_dat[j].dest == ap and stg_dat[j].flight_id == f  :
-                   return 60 * p >= model.n[f] - M*(1-model.delt21[p,ap])
+                return model.delt21[p,ap] * 60 * p >= model.n[f]
         return model.delt21[p,ap] >= 0
         
     def C12(model, p, ap):
@@ -167,13 +167,13 @@ def optimize(stg_dat,acws,apws):
             for j in range(len(stg_dat)):
                 if stg_dat[j].dest == ap and stg_dat[j].flight_id == fp  :
                     fap.append(fp)
-        return sum(model.x[r,f] for r in model.R for f in fap) <= model.arCap[p,ap] + M*(1-model.delt22[p,ap])
+        return sum(model.x[r,f] for r in model.R for f in fap) <= model.arCap[p,ap] * model.delt22[p,ap]
     
     def C13(model, p, ap):
-        return model.delt12[p,ap] <= model.delt11[p,ap]
+        return model.delt11[p,ap] <= model.delt12[p,ap]
     
     def C14(model, p, ap):
-        return model.delt22[p,ap] <= model.delt21[p,ap]
+        return model.delt21[p,ap] <= model.delt21[p,ap]
 
     
 

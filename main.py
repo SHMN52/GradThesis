@@ -54,23 +54,32 @@ while current_stage <= 48:
                                      
     for i in op.P:
         for j in op.AP:
-            delt1 = int(value(op.delt11[i,j]) + 0.5)
+            delt1 = int(value(op.delt12[i,j]) + 0.5)
             if delt1: 
                 for row1 in range(2, apws.max_row+1):
                     if  apws[row1][0].value == j:
                         for k in range(1,int(apws.max_column/4 +1)):
-                            if i*60 <= apws[i][4*j].value and apws[i][4*j-1].value <= (i - 1) * 60:
+                            if i*60 <= apws[row1][4*k].value and apws[row1][4*k-1].value <= (i - 1) * 60:
                                 xdepcount = 0
+                                for z in op.F:
+                                    if value(op.m[z]) <= 60*i and value(op.m[z]) >= (i - 1) * 60:
+                                        for t in op.R:
+                                            xdepcount +=  int(value(op.x[t,z]) + 0.5)
+                                apws[row1][4*k-3].value -= xdepcount
+                                
+            delt2 = int(value(op.delt22[i,j]) + 0.5)
+            if delt2: 
+                for row1 in range(2, apws.max_row+1):
+                    if  apws[row1][0].value == j:
+                        for k in range(1,int(apws.max_column/4 +1)):
+                            if i*60 <= apws[row1][4*k].value and apws[row1][4*k-1].value <= (i - 1) * 60:
                                 xarcount = 0
-                                for k in op.F:
-                                    if value(op.m[k]) <= 60*i and value(op.m[k]) >= (i - 1) * 60:
+                                for z in op.F:
+                                    if  value(op.n[z]) <= 60*i and value(op.n[z]) >= (i - 1) * 60:
                                         for t in op.R:
-                                            xdepcount +=  int(value(op.x[t,k]) + 0.5)
-                                    if  value(op.n[k]) <= 60*i and value(op.n[k]) >= (i - 1) * 60:
-                                        for t in op.R:
-                                            xarcount +=  int(value(op.x[t,k]) + 0.5)       
-                                apws[i][4*j-3].value -= xdepcount
-                                apws[i][4*j-2].value -= xarcount
+                                            xarcount +=  int(value(op.x[t,z]) + 0.5)
+                                apws[row1][4*k-2].value -= xarcount
+
     current_stage+=1
     
     wb.save("flights.xlsx")

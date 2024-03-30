@@ -58,7 +58,7 @@ def optimize(stg_dat,acws,apws):
 
     
     model.cc = Param(model.F, initialize = 50000)
-    model.UBn = Param(model.F, initialize = 1460)
+    
 
     def b_init(model, r, f):
         for i in range(2, acws.max_row+1):
@@ -224,9 +224,10 @@ def optimize(stg_dat,acws,apws):
     model.Co12 = Constraint(model.P,model.AP, rule=C12)
     model.Co13 = Constraint(model.P,model.AP, rule=C13)
     model.Co14 = Constraint(model.P,model.AP, rule=C14)
-    
-
-    
+    model.Co15 = Constraint(model.RFFF, rule=C15)
+    model.Co16 = Constraint(model.RFFF, rule=C16)
+    model.Co17 = Constraint(model.RFFF, rule=C17)
+    model.Co18 = Constraint(model.RFFF, rule=C18)
 
     
     pyo.SolverFactory('cplex').solve(model,tee=True)

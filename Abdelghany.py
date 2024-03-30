@@ -167,7 +167,7 @@ def optimize(stg_dat,acws,apws):
             for j in range(len(stg_dat)):
                 if stg_dat[j].dest == ap and stg_dat[j].flight_id == fp  :
                     fap.append(fp)
-        return sum(model.x[r,f] for r in model.R for f in fap) <= model.depCap[p,ap] + M*(1-model.delt22[p,ap])
+        return sum(model.x[r,f] for r in model.R for f in fap) <= model.arCap[p,ap] + M*(1-model.delt22[p,ap])
     
     def C13(model, p, ap):
         return model.delt12[p,ap] <= model.delt11[p,ap]

@@ -52,17 +52,25 @@ while current_stage <= 48:
                     print(f'Error, Flight {j} has the problem!')
                     input('Continue?')                    
                                      
-    # for i in op.P:
-    #     for j in op.AP:
-    #         delt1 = int(value(op.delt11[i,j]) + 0.5)
-    #         if delt1: 
-    #             for row1 in range(2, apws.max_row+1):
-    #                 if  apws[row1][0].value == j:
-    #                     for k in range(1,int(apws.max_column/4 +1)):
-    #                         if i*60 <= apws[i][4*j].value and apws[i][4*j-1].value <= (i - 1) * 60:
-    #                             apws[i][4*j-2].value -= 1#used capacity
-    
-    
+    for i in op.P:
+        for j in op.AP:
+            delt1 = int(value(op.delt11[i,j]) + 0.5)
+            if delt1: 
+                for row1 in range(2, apws.max_row+1):
+                    if  apws[row1][0].value == j:
+                        for k in range(1,int(apws.max_column/4 +1)):
+                            if i*60 <= apws[i][4*j].value and apws[i][4*j-1].value <= (i - 1) * 60:
+                                xdepcount = 0
+                                xarcount = 0
+                                for k in op.F:
+                                    if value(op.m[k]) <= 60*i and value(op.m[k]) >= (i - 1) * 60:
+                                        for t in op.R:
+                                            xdepcount +=  int(value(op.x[t,k]) + 0.5)
+                                    if  value(op.n[k]) <= 60*i and value(op.n[k]) >= (i - 1) * 60:
+                                        for t in op.R:
+                                            xarcount +=  int(value(op.x[t,k]) + 0.5)       
+                                apws[i][4*j-3].value -= xdepcount
+                                apws[i][4*j-2].value -= xarcount
     current_stage+=1
     
     wb.save("flights.xlsx")

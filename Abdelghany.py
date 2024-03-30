@@ -23,6 +23,8 @@ def optimize(stg_dat,acws,apws):
         return [i for i in range(1,25)]
     model.P = Set(initialize=Period_init)
     
+    model.RFFF = Set(whithin= model.R*model.F*model.F*model.F)
+    # Parameters
     
     def c_init(model, r, f):
         for i in range(2, acws.max_row+1):
@@ -32,7 +34,20 @@ def optimize(stg_dat,acws,apws):
                         return acws[i][5].value * (stg_dat[j].planned_arrival - stg_dat[j].planned_departure)/60
         return M        
     model.c = Param(model.R, model.F, initialize = c_init)
-    
+
+    def origin_init(model, f):
+        for j in range(len(stg_dat)):
+            if stg_dat[j].flight_id == f :
+                return stg_dat[j].origin
+    model.origin = Param(model.F, initialize = origin_init)
+
+    def dest_init(model, f):
+        for j in range(len(stg_dat)):
+            if stg_dat[j].flight_id == f :
+                return stg_dat[j].dest
+    model.origin = Param(model.F, initialize = dest_init)
+
+
     model.cd = Param(model.F, initialize = (0.75*120))
     
     def t_init(model, f):
@@ -100,7 +115,8 @@ def optimize(stg_dat,acws,apws):
     model.delt12 = Var(model.P,model.AP, domain=Binary)
     model.delt21 = Var(model.P,model.AP, domain=Binary)
     model.delt22 = Var(model.P,model.AP, domain=Binary)
-
+    model.delt1 =  Var(model.RFFF, domain=Binary)
+    model.delt2 =  Var(model.RFFF, domain=Binary)
 
     def obj_expression(model):
         return (sum( model.c[r, f] * model.x[r,f] for r in model.R for f in model.F ) 
@@ -175,9 +191,24 @@ def optimize(stg_dat,acws,apws):
     def C14(model, p, ap):
         return model.delt12[p,ap] <= model.delt22[p,ap]
 
+    def C15(model, r, f, fp, fxe):
+        if model.origin[f] == model.origin[fxe] and model.origin[f] == model.dest[fp]:
+            return model.n[f] <  model.m[fp] + (1-model.delt1[r, f, fp, fxe]) * M
+        return model.x[r,f] >= 0
     
-
-
+    def C16(model, r, f, fp, fxe):
+        if model.origin[f] == model.origin[fxe] and model.origin[f] == model.dest[fp]:
+            return model.n[fp] < model.m[fxe] + (1-model.delt1[r, f, fp, fxe]) * M
+        return model.x[r,f] >= 0
+    
+    def C17(model, r, f, fp, fxe):
+        if model.origin[f] == model.origin[fxe] and model.origin[f] == model.dest[fp]:
+            return 2 * model.x[r,fp] <= model.x[r,f] + model.x[r,fxe] + (1-model.delt2[r, f, fp, fxe]) * M
+        return model.x[r,f] >= 0
+    
+    def C18(model, r, f, fp, fxe):
+        return model.delt2[r, f, fp, fxe] <= model.delt1[r, f, fp, fxe]
+    
 
     model.Co1 = Constraint(model.R,model.F, rule=C1)
     model.Co2 = Constraint(model.R, rule=C2)

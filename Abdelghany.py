@@ -23,6 +23,13 @@ def optimize(stg_dat,acws,apws):
         return [i for i in range(1,25)]
     model.P = Set(initialize=Period_init)
     
+    # parameters
+
+    def time_init(model, p):
+        for i in model.P:
+            if i == p:
+                return i * 60
+    model.S = Param(model.P, initialize = time_init)
     
     def c_init(model, r, f):
         for i in range(2, acws.max_row+1):
@@ -100,7 +107,8 @@ def optimize(stg_dat,acws,apws):
     model.delt12 = Var(model.P,model.AP, domain=Binary)
     model.delt21 = Var(model.P,model.AP, domain=Binary)
     model.delt22 = Var(model.P,model.AP, domain=Binary)
-
+    model.tet1 = Var(model.P, model.F, domain=Binary)
+    model.tet2 = Var(model.P, model.F, domain=Binary)
 
     def obj_expression(model):
         return (sum( model.c[r, f] * model.x[r,f] for r in model.R for f in model.F ) 
@@ -132,13 +140,13 @@ def optimize(stg_dat,acws,apws):
     def C7(model, f, p, ap):
         for j in range(len(stg_dat)):
             if stg_dat[j].origin == ap and stg_dat[j].flight_id == f  :
-                return model.delt11[p,ap] * 60*(p - 1) <= model.m[f]
+                return model.delt11[p,ap] * 60*(p - 1) <= model.m[f] + model.tet1[p,f] * M
         return model.delt11[p,ap] >= 0
 
     def C8(model, f, p, ap):
         for j in range(len(stg_dat)):
             if stg_dat[j].origin == ap and stg_dat[j].flight_id == f  :
-                return model.delt11[p,ap] * 60 * p >= model.m[f]
+                return model.delt11[p,ap] * 60 * p + model.tet1[p,f] * M >= model.m[f]
         return model.delt11[p,ap] >= 0
         
     def C9(model, p, ap):

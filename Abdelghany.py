@@ -23,7 +23,7 @@ def optimize(stg_dat,acws,apws):
         return [i for i in range(1,25)]
     model.P = Set(initialize=Period_init)
 
-    model.RFPAP = Set(within= model.R * model.F * model.P * model.AP)
+    #model.RFPAP = Set(within= model.R * model.F * model.P * model.AP)
     
     # parameters
 
@@ -112,12 +112,12 @@ def optimize(stg_dat,acws,apws):
     
     
     # Variables
-    model.x = Var(model.RFPAP, domain=Binary)
+    model.x = Var(model.R,model.F,model.P,model.AP, domain=Binary)
     model.L = Var(model.F, domain=Binary)
     model.m = Var(model.F, domain=NonNegativeIntegers)
     model.n = Var(model.F, domain=NonNegativeIntegers)
-    model.delt1 = Var(model.F, model.P, domain=Binary)
-    model.delt2 = Var(model.F, model.P, domain=Binary)
+    model.delt1 = Var(model.F, model.P,model.AP, domain=Binary)
+    model.delt2 = Var(model.F, model.P,model.AP, domain=Binary)
     
     
     def obj_expression(model):
@@ -140,40 +140,39 @@ def optimize(stg_dat,acws,apws):
     def C4(model,r, f):
         return model.m[f] >= sum(model.x[r,f,p,ap] for p in model.P for ap in model.AP) * model.a[r,f]
     
-    
     def C5(model, f):
         return model.n[f] == model.m[f] + model.T[f]
 
     def C6(model, f):
         return model.m[f] >= model.t[f]
 
-    def C7(model, f, p):
-        return model.m[f] <= model.S[p] + (1-model.delt1[f,p]) * M
+    def C7(model, f, p, ap):
+        return model.m[f] <= model.S[p] + (1-model.delt1[f,p,ap]) * M
 
-    def C8(model, f, p):
+    def C8(model, f, p, ap):
         if p < 2 :
-            return -M * (1-model.delt1[f,p]) <= model.m[f]
-        return  -M * (1-model.delt1[f,p]) + model.S[p-1] <= model.m[f]
+            return -M * (1-model.delt1[f,p,ap]) <= model.m[f]
+        return  -M * (1-model.delt1[f,p,ap]) + model.S[p-1] <= model.m[f]
         
-    def C9(model, p,ap):
-        return  sum(model.delt1[f,p] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R) 
+    def C9(model, p, ap):
+        return  sum(model.delt1[f,p,ap] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R) 
         
-    def C10(model, p, ap):
-        return  sum(model.delt1[f,p] for f in model.F) <= model.depCap[p,ap]
+    def C10(model, p , ap):
+        return  sum(model.delt1[f,p,ap] for f in model.F) <= model.depCap[p,ap]
     
-    def C11(model, f, p):
-        return model.n[f] <= model.S[p] + (1-model.delt2[f,p]) * M
+    # def C11(model, f, p):
+    #     return model.n[f] <= model.S[p] + (1-model.delt2[f,p]) * M
         
-    def C12(model, f, p):
-        if p < 2 :
-            return -M * (1-model.delt2[f,p]) <= model.n[f]
-        return -M * (1-model.delt2[f,p]) +  model.S[p-1] <= model.n[f]
+    # def C12(model, f, p):
+    #     if p < 2 :
+    #         return -M * (1-model.delt2[f,p]) <= model.n[f]
+    #     return -M * (1-model.delt2[f,p]) +  model.S[p-1] <= model.n[f]
     
-    def C13(model, p ,ap):
-        return sum(model.delt2[f,p] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R)
+    # def C13(model, p):
+    #     return sum(model.delt2[f,p] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R for ap in model.AP)
     
-    def C14(model, p, ap):
-        return sum(model.delt2[f,p] for f in model.F) <= model.arCap[p,ap]
+    # def C14(model, p, ap):
+    #     return sum(model.delt2[f,p] for f in model.F) <= model.arCap[p,ap]
 
     
 
@@ -185,21 +184,22 @@ def optimize(stg_dat,acws,apws):
     model.Co4  = Constraint(model.R,model.F, rule=C4)
     model.Co5  = Constraint(model.F, rule=C5)
     model.Co6  = Constraint(model.F, rule=C6)
-    model.Co7  = Constraint(model.F,model.P, rule=C7)
-    model.Co8  = Constraint(model.F,model.P, rule=C8)
+    model.Co7  = Constraint(model.F,model.P,model.AP, rule=C7)
+    model.Co8  = Constraint(model.F,model.P,model.AP, rule=C8)
     model.Co9  = Constraint(model.P,model.AP, rule=C9)
     model.Co10 = Constraint(model.P,model.AP, rule=C10)
-    model.Co11 = Constraint(model.F,model.P, rule=C11)
-    model.Co12 = Constraint(model.F,model.P, rule=C12)
-    model.Co13 = Constraint(model.P,model.AP, rule=C13)
-    model.Co14 = Constraint(model.P,model.AP, rule=C14)
+    # model.Co11 = Constraint(model.F,model.P, rule=C11)
+    # model.Co12 = Constraint(model.F,model.P, rule=C12)
+    # model.Co13 = Constraint(model.P, rule=C13)
+    # model.Co14 = Constraint(model.P,model.AP, rule=C14)
     
 
     
-    # model.Co1.deactivate()
+    
     # model.Co7.deactivate()
     # model.Co8.deactivate()
     # model.Co9.deactivate()
+    # model.Co10.deactivate()
     # model.Co11.deactivate()
     # model.Co12.deactivate() 
     # model.Co13.deactivate() 

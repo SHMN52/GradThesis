@@ -23,7 +23,7 @@ def optimize(stg_dat,acws,apws):
         return [i for i in range(1,25)]
     model.P = Set(initialize=Period_init)
 
-    
+    model.RFPAP = Set(within= model.R * model.F * model.P * model.AP)
     
     # parameters
 
@@ -85,13 +85,12 @@ def optimize(stg_dat,acws,apws):
     def b_init(model, r, f, ap):
         for i in range(2, acws.max_row+1):
             if acws[i][0].value == r :
-                for j in model.F:
-                    if j == f and acws[i][8].value == model.origin[j] and acws[i][4].value >= model.T[j]:
-                        for k in model.AP:
-                            if k == ap and model.origin[j] == k:
-                                return 1
+                if acws[i][8].value == model.origin[f] and acws[i][4].value >= model.T[f] and model.origin[f] == ap:
+                    return 1
         return 0
     model.b = Param(model.R, model.F, model.AP, initialize=b_init)
+    
+    
     def depCap_init(model,p, ap):
         for i in range(2, apws.max_row+1):
             if apws[i][0].value == ap :
@@ -113,7 +112,7 @@ def optimize(stg_dat,acws,apws):
     
     
     # Variables
-    model.x = Var(model.R,model.F,model.P, domain=Binary)
+    model.x = Var(model.RFPAP, domain=Binary)
     model.L = Var(model.F, domain=Binary)
     model.m = Var(model.F, domain=NonNegativeIntegers)
     model.n = Var(model.F, domain=NonNegativeIntegers)
@@ -122,7 +121,7 @@ def optimize(stg_dat,acws,apws):
     
     
     def obj_expression(model):
-        return (sum( model.c[r, f] * model.x[r,f,p] for r in model.R for f in model.F for p in model.P) 
+        return (sum( model.c[r, f] * model.x[r,f,p,ap] for r in model.R for f in model.F for p in model.P for ap in model.AP) 
             +sum(model.cd[f] * (model.m[f]-model.t[f]) for f in model.F)
             +sum(model.cc[f] * model.L[f] for f in model.F))
 
@@ -130,16 +129,16 @@ def optimize(stg_dat,acws,apws):
 
 
     def C1(model, r, f , ap):
-        return sum(model.x[r,f,p] for p in model.P) <= model.b[r,f,ap]
+        return sum(model.x[r,f,p,ap] for p in model.P) <= model.b[r,f,ap]
 
-    def C2(model, r, p):
-        return sum(model.x[r, f, p] for f in model.F) <= 1
+    def C2(model, r, p, ap):
+        return sum(model.x[r, f, p, ap] for f in model.F) <= 1
 
     def C3(model, f):
-        return sum(model.x[r, f, p] for r in model.R for p in model.P) == 1 - model.L[f]
+        return sum(model.x[r, f, p, ap] for r in model.R for p in model.P for ap in model.AP) == 1 - model.L[f]
 
     def C4(model,r, f):
-        return model.m[f] >= sum(model.x[r,f,p] * model.a[r,f] for p in model.P)
+        return model.m[f] >= sum(model.x[r,f,p,ap] for p in model.P for ap in model.AP) * model.a[r,f]
     
     
     def C5(model, f):
@@ -154,10 +153,10 @@ def optimize(stg_dat,acws,apws):
     def C8(model, f, p):
         if p < 2 :
             return -M * (1-model.delt1[f,p]) <= model.m[f]
-        return model.S[p-1] -M * (1-model.delt1[f,p]) <= model.m[f]
+        return  -M * (1-model.delt1[f,p]) + model.S[p-1] <= model.m[f]
         
-    def C9(model, p):
-        return  sum(model.delt1[f,p] for f in model.F) >= sum(model.x[r,f,p] for f in model.F for r in model.R) 
+    def C9(model, p,ap):
+        return  sum(model.delt1[f,p] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R) 
         
     def C10(model, p, ap):
         return  sum(model.delt1[f,p] for f in model.F) <= model.depCap[p,ap]
@@ -167,11 +166,11 @@ def optimize(stg_dat,acws,apws):
         
     def C12(model, f, p):
         if p < 2 :
-            return -M * (1-model.delt2[f,p]) <= model.m[f]
-        return model.S[p-1] -M * (1-model.delt2[f,p]) <= model.n[f]
+            return -M * (1-model.delt2[f,p]) <= model.n[f]
+        return -M * (1-model.delt2[f,p]) +  model.S[p-1] <= model.n[f]
     
-    def C13(model, p):
-        return sum(model.delt2[f,p] for f in model.F) >= sum(model.x[r,f,p] for f in model.F for r in model.R)
+    def C13(model, p ,ap):
+        return sum(model.delt2[f,p] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R)
     
     def C14(model, p, ap):
         return sum(model.delt2[f,p] for f in model.F) <= model.arCap[p,ap]
@@ -180,22 +179,31 @@ def optimize(stg_dat,acws,apws):
 
 
 
-    model.Co1 = Constraint(model.R,model.F, model.AP, rule=C1)
-    model.Co2 = Constraint(model.R,model.P, rule=C2)
-    model.Co3 = Constraint(model.F, rule=C3)
-    model.Co4 = Constraint(model.R,model.F, rule=C4)
-    model.Co5 = Constraint(model.F, rule=C5)
-    model.Co6 = Constraint(model.F, rule=C6)
-    model.Co7 = Constraint(model.F,model.P, rule=C7)
-    model.Co8 = Constraint(model.F,model.P, rule=C8)
-    model.Co9 = Constraint(model.P, rule=C9)
+    model.Co1  = Constraint(model.R,model.F,model.AP, rule=C1)
+    model.Co2  = Constraint(model.R,model.P,model.AP, rule=C2)
+    model.Co3  = Constraint(model.F, rule=C3)
+    model.Co4  = Constraint(model.R,model.F, rule=C4)
+    model.Co5  = Constraint(model.F, rule=C5)
+    model.Co6  = Constraint(model.F, rule=C6)
+    model.Co7  = Constraint(model.F,model.P, rule=C7)
+    model.Co8  = Constraint(model.F,model.P, rule=C8)
+    model.Co9  = Constraint(model.P,model.AP, rule=C9)
     model.Co10 = Constraint(model.P,model.AP, rule=C10)
     model.Co11 = Constraint(model.F,model.P, rule=C11)
     model.Co12 = Constraint(model.F,model.P, rule=C12)
-    model.Co13 = Constraint(model.P, rule=C13)
+    model.Co13 = Constraint(model.P,model.AP, rule=C13)
     model.Co14 = Constraint(model.P,model.AP, rule=C14)
     
 
+    
+    # model.Co1.deactivate()
+    # model.Co7.deactivate()
+    # model.Co8.deactivate()
+    # model.Co9.deactivate()
+    # model.Co11.deactivate()
+    # model.Co12.deactivate() 
+    # model.Co13.deactivate() 
+    # model.Co14.deactivate()
     
 
     

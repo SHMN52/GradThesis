@@ -160,19 +160,19 @@ def optimize(stg_dat,acws,apws):
     def C10(model, p , ap):
         return  sum(model.delt1[f,p,ap] for f in model.F) <= model.depCap[p,ap]
     
-    # def C11(model, f, p):
-    #     return model.n[f] <= model.S[p] + (1-model.delt2[f,p]) * M
+    def C11(model, f, p, ap):
+        return model.n[f] <= model.S[p] + (1-model.delt2[f,p,ap]) * M
         
-    # def C12(model, f, p):
-    #     if p < 2 :
-    #         return -M * (1-model.delt2[f,p]) <= model.n[f]
-    #     return -M * (1-model.delt2[f,p]) +  model.S[p-1] <= model.n[f]
+    def C12(model, f, p, ap):
+        if p < 2 :
+            return -M * (1-model.delt2[f,p,ap]) <= model.n[f]
+        return -M * (1-model.delt2[f,p,ap]) +  model.S[p-1] <= model.n[f]
     
-    # def C13(model, p):
-    #     return sum(model.delt2[f,p] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R for ap in model.AP)
+    def C13(model, p,ap):
+        return sum(model.delt2[f,p,ap] for f in model.F) >= sum(model.x[r,f,p,ap] for f in model.F for r in model.R)
     
-    # def C14(model, p, ap):
-    #     return sum(model.delt2[f,p] for f in model.F) <= model.arCap[p,ap]
+    def C14(model, p, ap):
+        return sum(model.delt2[f,p,ap] for f in model.F) <= model.arCap[p,ap]
 
     
 
@@ -188,10 +188,10 @@ def optimize(stg_dat,acws,apws):
     model.Co8  = Constraint(model.F,model.P,model.AP, rule=C8)
     model.Co9  = Constraint(model.P,model.AP, rule=C9)
     model.Co10 = Constraint(model.P,model.AP, rule=C10)
-    # model.Co11 = Constraint(model.F,model.P, rule=C11)
-    # model.Co12 = Constraint(model.F,model.P, rule=C12)
-    # model.Co13 = Constraint(model.P, rule=C13)
-    # model.Co14 = Constraint(model.P,model.AP, rule=C14)
+    model.Co11 = Constraint(model.F,model.P,model.AP, rule=C11)
+    model.Co12 = Constraint(model.F,model.P,model.AP, rule=C12)
+    model.Co13 = Constraint(model.P,model.AP, rule=C13)
+    model.Co14 = Constraint(model.P,model.AP, rule=C14)
     
 
     

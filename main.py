@@ -29,17 +29,18 @@ while current_stage <= 48:
     for j in op.F:
         k = 0
         for i in op.R:
-            tmp = int(value(op.x[i,j]) + 0.5)
-            k += tmp
-            if tmp:
-                for row1 in range(2, ws.max_row+1):
-                    if  ws[row1][0].value == j:
-                        ws[row1][7].value = value(op.m[j])
-                        ws[row1][8].value = value(op.n[j])
-                        for row2 in range(2, acws.max_row+1):
-                            if  acws[row2][0].value == i:
-                                acws[row2][7].value = value(op.n[j])
-                                acws[row2][8].value = ws[row1][6].value
+            for o in op.P:
+                tmp = int(value(op.x[i,j,o]) + 0.5)
+                k += tmp
+                if tmp:
+                    for row1 in range(2, ws.max_row+1):
+                        if  ws[row1][0].value == j:
+                            ws[row1][7].value = value(op.m[j])
+                            ws[row1][8].value = value(op.n[j])
+                            for row2 in range(2, acws.max_row+1):
+                                if  acws[row2][0].value == i:
+                                    acws[row2][7].value = value(op.n[j])
+                                    acws[row2][8].value = ws[row1][6].value
             
                                 
                                 
@@ -54,9 +55,7 @@ while current_stage <= 48:
                                      
     for i in op.P:
         for j in op.AP:
-            delt1 = int(value(op.delt12[i,j]) + 0.5)
-            if delt1: 
-                for row1 in range(2, apws.max_row+1):
+            for row1 in range(2, apws.max_row+1):
                     if  apws[row1][0].value == j:
                         for k in range(1,int(apws.max_column/4 +1)):
                             if i*60 <= apws[row1][4*k].value and apws[row1][4*k-1].value <= (i - 1) * 60:
@@ -64,12 +63,10 @@ while current_stage <= 48:
                                 for z in op.F:
                                     if value(op.m[z]) <= 60*i and value(op.m[z]) >= (i - 1) * 60:
                                         for t in op.R:
-                                            xdepcount +=  int(value(op.x[t,z]) + 0.5)
+                                            xdepcount +=  int(value(op.x[t,z,i]) + 0.5)
                                 apws[row1][4*k-3].value -= xdepcount
                                 
-            delt2 = int(value(op.delt22[i,j]) + 0.5)
-            if delt2: 
-                for row1 in range(2, apws.max_row+1):
+            for row1 in range(2, apws.max_row+1):
                     if  apws[row1][0].value == j:
                         for k in range(1,int(apws.max_column/4 +1)):
                             if i*60 <= apws[row1][4*k].value and apws[row1][4*k-1].value <= (i - 1) * 60:
@@ -77,7 +74,7 @@ while current_stage <= 48:
                                 for z in op.F:
                                     if  value(op.n[z]) <= 60*i and value(op.n[z]) >= (i - 1) * 60:
                                         for t in op.R:
-                                            xarcount +=  int(value(op.x[t,z]) + 0.5)
+                                            xarcount +=  int(value(op.x[t,z,i]) + 0.5)
                                 apws[row1][4*k-2].value -= xarcount
 
     current_stage+=1

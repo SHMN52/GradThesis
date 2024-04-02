@@ -72,7 +72,7 @@ def optimize(stg_dat,acws):
     
     
     # Variables
-    model.x = Var(model.R,model.F,model.P,model.AP, domain=Binary) #Assignment variable
+    model.x = Var(model.R,model.F, domain=Binary) #Assignment variable
     model.L = Var(model.F, domain=Binary) # cancellation variable
     model.m = Var(model.F, domain=NonNegativeIntegers) # Departure time variable for flight f
     model.n = Var(model.F, domain=NonNegativeIntegers) # Arrival variable for flight f

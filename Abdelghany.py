@@ -93,12 +93,12 @@ def optimize(stg_dat,acws):
     # C1 Checks assignability 
 
     def C2(model, r):
-        return sum(model.x[r, f] for f in model.F) <= 1
+        return sum(model.x[r,f] for f in model.F) <= 1
 
     # C2 states that in a single stage, an aircraft can only accompany 
 
     def C3(model, f):
-        return sum(model.x[r, f] for r in model.R ) == 1 - model.L[f]
+        return sum(model.x[r,f] for r in model.R ) == 1 - model.L[f]
     
     # C3: A flight must be either assigned to an aircraft or be cancceled
 

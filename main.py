@@ -4,6 +4,8 @@ wb = x.load_workbook("flights.xlsx")
 ws = wb.active
 acwb = x.load_workbook("aircraft.xlsx")
 acws = acwb.active
+apwb = x.load_workbook("airports.xlsx")
+apws = apwb.active
 from Staging import staging
 from Abdelghany import optimize
 
@@ -21,7 +23,7 @@ while current_stage <= 48:
                 if (ws[row][0].value == st[i].flight_id):
                     ws[row][4].value = current_stage
     
-    op=optimize(st,acws)
+    op=optimize(st,acws,apws)
 
     
     for j in op.F:

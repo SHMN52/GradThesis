@@ -1,6 +1,6 @@
 from pyomo.environ import *
 import pyomo.opt as pyo
-def optimize(stg_dat,acws):
+def optimize(stg_dat,acws,apws):
     
     model = ConcreteModel()
     
@@ -14,6 +14,10 @@ def optimize(stg_dat,acws):
     def F_init(model):
         return [stg_dat[i].flight_id for i in range(len(stg_dat))]
     model.F = Set(initialize=F_init) # Flight set
+
+    def I_init(model):
+        return [apws[i][0].value for i in range(2, apws.max_row+1)]
+    model.I = Set(initialize=I_init) # Origin set
 
    
     

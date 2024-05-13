@@ -92,20 +92,20 @@ def optimize(stg_dat,acws,apws):
     
     
     def obj_expression(model):
-        return ( sum( model.c[r, f] * model.x[r,f,i,j] for r in model.R for f in model.F for i ) 
+        return ( sum( model.c[r, f] * model.x[r,f,i,j] for r in model.R for f in model.F for i,j in model.IJ) 
                 +sum(model.cd[f] * (model.m[f]-model.t[f]) for f in model.F)
                 +sum(model.cc[f] * model.L[f] for f in model.F))
 
     model.obj = Objective(rule=obj_expression,sense = minimize)
 
 
-    def C1(model, r, f ):
-        return model.x[r,f] <= model.b[r,f]  
+    def C1(model, r, f, i, j ):
+        return model.x[r,f,i,j] <= model.b[r,f,i,j] 
 
     # C1 Checks assignability 
 
     def C2(model, r):
-        return sum(model.x[r,f] for f in model.F) <= 1
+        return sum(model.x[r,f,i,j] for f in model.F) <= 1
 
     # C2 states that in a single stage, an aircraft can only accompany 
 

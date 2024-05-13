@@ -19,6 +19,7 @@ def optimize(stg_dat,acws,apws):
         return [apws[i][0].value for i in range(2, apws.max_row+1)]
     model.I = Set(initialize=I_init) # Origin set
 
+    model.IJ= Set(within= model.I * model.Is)
    
     
     # parameters
@@ -29,6 +30,13 @@ def optimize(stg_dat,acws,apws):
             if stg_dat[j].flight_id == f :
                 return stg_dat[j].origin
     model.origin = Param(model.F, initialize = origin_init) # Origin on flights
+
+
+    def Destination_init(model, f):
+        for j in range(len(stg_dat)):
+            if stg_dat[j].flight_id == f :
+                return stg_dat[j].dest
+    model.dest = Param(model.F, initialize = Destination_init) # Destination on flights
 
     def T_init(model, f):
         for j in range(len(stg_dat)):
@@ -62,13 +70,13 @@ def optimize(stg_dat,acws,apws):
     
     
 
-    def b_init(model, r, f):
-        for i in range(2, acws.max_row+1):
-            if acws[i][0].value == r :
-                if acws[i][8].value == model.origin[f] and acws[i][4].value >= model.T[f]:
+    def b_init(model, r, f, i,j):
+        for i1 in range(2, acws.max_row+1):
+            if acws[i1][0].value == r :
+                if acws[i1][8].value == model.origin[f] and acws[i1][4].value >= model.T[f] and model.origin[f]==i and model.dest[f]==j:
                     return 1
         return 0
-    model.b = Param(model.R, model.F, initialize=b_init) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
+    model.b = Param(model.R, model.F,model.IJ, initialize=b_init) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
     
     
     
@@ -76,7 +84,7 @@ def optimize(stg_dat,acws,apws):
     
     
     # Variables
-    model.x = Var(model.R,model.F, domain=Binary) #Assignment variable
+    model.x = Var(model.R,model.F,model.IJ, domain=Binary) #Assignment variable
     model.L = Var(model.F, domain=Binary) # cancellation variable
     model.m = Var(model.F, domain=NonNegativeIntegers) # Departure time variable for flight f
     model.n = Var(model.F, domain=NonNegativeIntegers) # Arrival variable for flight f
@@ -84,7 +92,7 @@ def optimize(stg_dat,acws,apws):
     
     
     def obj_expression(model):
-        return ( sum( model.c[r, f] * model.x[r,f] for r in model.R for f in model.F) 
+        return ( sum( model.c[r, f] * model.x[r,f,i,j] for r in model.R for f in model.F for i ) 
                 +sum(model.cd[f] * (model.m[f]-model.t[f]) for f in model.F)
                 +sum(model.cc[f] * model.L[f] for f in model.F))
 

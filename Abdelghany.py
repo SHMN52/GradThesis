@@ -20,7 +20,7 @@ def optimize(stg_dat,acws,apws):
     model.I = Set(initialize=I_init) # Origin set
 
     model.J= Set(initialize=I_init)
-   
+    model.Fp 
     
     # parameters
 

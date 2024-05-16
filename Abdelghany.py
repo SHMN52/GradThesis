@@ -19,7 +19,7 @@ def optimize(stg_dat,acws,apws):
         return [apws[i][0].value for i in range(2, apws.max_row+1)]
     model.I = Set(initialize=I_init) # Origin set
 
-    model.IJ= Set(within= model.I * model.Is)
+    model.IJ= Set(within= model.I * model.I)
    
     
     # parameters
@@ -104,8 +104,8 @@ def optimize(stg_dat,acws,apws):
 
     # C1 Checks assignability 
 
-    def C2(model, r):
-        return sum(model.x[r,f,i,j] for f in model.F) <= 1
+    # def C2(model, r):
+    #     return sum(model.x[r,f,i,j] for f in model.F) <= 1
 
     # C2 states that in a single stage, an aircraft can only accompany 
 
@@ -129,13 +129,14 @@ def optimize(stg_dat,acws,apws):
     
     # C6: a flight can only depart after it initial schedualed takeoff
 
-    
+    def C7(model, r):
+        return model.
     
 
 
 
     model.Co1  = Constraint(model.R,model.F, rule=C1)
-    model.Co2  = Constraint(model.R, rule=C2)
+    #model.Co2  = Constraint(model.R, rule=C2)
     model.Co3  = Constraint(model.F, rule=C3)
     model.Co4  = Constraint(model.R,model.F, rule=C4)
     model.Co5  = Constraint(model.F, rule=C5)

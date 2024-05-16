@@ -13,7 +13,7 @@ from Abdelghany import optimize
 current_stage=1
 
 
-while current_stage <= 48:
+while current_stage <= 1:
     
     
     print('current stage=',current_stage)
@@ -26,30 +26,32 @@ while current_stage <= 48:
     op=optimize(st,acws,apws)
 
     
-    for j in op.F:
+    for f in op.F:
         k = 0
-        for i in op.R:
-            tmp = int(value(op.x[i,j]) + 0.5)
-            k += tmp
-            if tmp:
-                for row1 in range(2, ws.max_row+1):
-                    if  ws[row1][0].value == j:
-                        ws[row1][7].value = value(op.m[j])
-                        ws[row1][8].value = value(op.n[j])
-                        for row2 in range(2, acws.max_row+1):
-                            if  acws[row2][0].value == i:
-                                acws[row2][7].value = value(op.n[j])
-                                acws[row2][8].value = ws[row1][6].value
+        for r in op.R:
+            for i in op.I:
+                for j in op.I:
+                    tmp = int(value(op.x[r,f,i,j]) + 0.5)
+                    k += tmp
+                    if tmp:
+                        for row1 in range(2, ws.max_row+1):
+                            if  ws[row1][0].value == f:
+                                ws[row1][7].value = value(op.m[f])
+                                ws[row1][8].value = value(op.n[f])
+                                for row2 in range(2, acws.max_row+1):
+                                    if  acws[row2][0].value == r:
+                                        acws[row2][7].value = value(op.n[f])
+                                        acws[row2][8].value = ws[row1][6].value
             
                                 
                                 
         for row in range(2, ws.max_row+1):
-            if  int(ws[row][0].value) == j:
+            if  int(ws[row][0].value) == f:
                 ws[row][9].value = k
-                L = int(value(op.L[j]))
+                L = int(value(op.L[f]))
                 ws[row][10].value = L
                 if k + L != 1:
-                    print(f'Error, Flight {j} has the problem!')
+                    print(f'Error, Flight {f} has the problem!')
                     input('Continue?')                    
 
     

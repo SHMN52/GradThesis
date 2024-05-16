@@ -6,6 +6,7 @@ def optimize(stg_dat,acws,apws):
     
     # Sets rf import
     M = 999999999
+    Eps = 0.0000001
 
     def R_init(model):
        return [acws[i][0].value for i in range(2, acws.max_row+1)]
@@ -29,12 +30,19 @@ def optimize(stg_dat,acws,apws):
                 return stg_dat[j].origin
     model.origin = Param(model.F, initialize = origin_init) # Origin on flights
 
-
     def Destination_init(model, f):
         for j in range(len(stg_dat)):
             if stg_dat[j].flight_id == f :
                 return stg_dat[j].dest
     model.dest = Param(model.F, initialize = Destination_init) # Destination on flights
+
+    def airport_resource(model, i):
+        for row in range(2, acws.max_row+1):
+            k=0
+            if acws[row][8].value == i:
+                k+=1
+        return k
+    model.ar = Param(model.I, initialize = airport_resource)
 
     def T_init(model, f):
         for j in range(len(stg_dat)):
@@ -68,13 +76,11 @@ def optimize(stg_dat,acws,apws):
     
     
 
-    def b_init(model, r, f, i, j):
-        for i1 in range(2, acws.max_row+1):
-            if acws[i1][0].value == r :
-                if acws[i1][8].value == model.origin[f] and acws[i1][4].value >= model.T[f] and model.origin[f]==i and model.dest[f]==j:
-                    return 1
+    def b_init(model, f, i, j):
+        if model.origin[f]==i and model.dest[f]==j:
+            return 1
         return 0
-    model.b = Param(model.R, model.F,model.I,model.I, initialize=b_init) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
+    model.b = Param(model.F,model.I,model.I, initialize=b_init) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
     
     
     
@@ -127,10 +133,13 @@ def optimize(stg_dat,acws,apws):
     
     # C6: a flight can only depart after it initial schedualed takeoff
 
-    def C7(model, r):
-        return model.
-    
+    def C7(model, r, f, fp):
+        if model.t[fp] >= model.t[f]:
+            return sum(model.x[r,f,i,j] + model.x[r,fp,k,l] for i in model.I for j in model.I for k in model.I for l in model.I) <= 2 + Eps*(model.m[fp] - model.n[f])
+        return sum(model.x[r,f,i,j] + model.x[r,fp,k,l] for i in model.I for j in model.I for k in model.I for l in model.I) <= 2 + Eps*(model.m[f] - model.n[fp])   
 
+    def C8(model, j):
+        return sum(model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I) + model.ar[j] == sum(model.x[r,f,j,h] for r in model.R for f in model.F for h in model.I)
 
 
     model.Co1  = Constraint(model.R,model.F, rule=C1)
@@ -139,8 +148,8 @@ def optimize(stg_dat,acws,apws):
     model.Co4  = Constraint(model.R,model.F, rule=C4)
     model.Co5  = Constraint(model.F, rule=C5)
     model.Co6  = Constraint(model.F, rule=C6)
-    
-
+    model.Co7  = Constraint(model.R,model.F,model.F, rule=C7)
+    model.Co8  = Constraint(model.I, rule=C8)
     
     
    

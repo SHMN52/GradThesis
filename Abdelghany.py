@@ -19,8 +19,6 @@ def optimize(stg_dat,acws,apws):
         return [apws[i][0].value for i in range(2, apws.max_row+1)]
     model.I = Set(initialize=I_init) # Origin set
 
-    model.J= Set(initialize=I_init)
-    model.Fp 
     
     # parameters
 
@@ -76,7 +74,7 @@ def optimize(stg_dat,acws,apws):
                 if acws[i1][8].value == model.origin[f] and acws[i1][4].value >= model.T[f] and model.origin[f]==i and model.dest[f]==j:
                     return 1
         return 0
-    model.b = Param(model.R, model.F,model.I,model.J, initialize=b_init) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
+    model.b = Param(model.R, model.F,model.I,model.I, initialize=b_init) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
     
     
     
@@ -92,7 +90,7 @@ def optimize(stg_dat,acws,apws):
     
     
     def obj_expression(model):
-        return ( sum( model.c[r, f] * model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I for j in model.J) 
+        return ( sum( model.c[r, f] * model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I for j in model.I) 
                 +sum(model.cd[f] * (model.m[f]-model.t[f]) for f in model.F)
                 +sum(model.cc[f] * model.L[f] for f in model.F))
 

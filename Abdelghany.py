@@ -68,11 +68,11 @@ def optimize(stg_dat,acws,apws):
     
     model.cc = Param(model.F, initialize = 50000) # Estimated cost of flight cancellation
     
-    def a_init(model, r):
-        for i in range(2, acws.max_row+1):
-            if acws[i][0].value == r:
-                return acws[i][7].value + acws[i][6].value
-    model.a = Param(model.R, initialize=a_init) # Ready time of aircraft r (time of previus flight landing plus the turn-around time)
+    # def a_init(model, r):
+    #     for i in range(2, acws.max_row+1):
+    #         if acws[i][0].value == r:
+    #             return acws[i][7].value + acws[i][6].value
+    # model.a = Param(model.R, initialize=a_init) # Ready time of aircraft r (time of previus flight landing plus the turn-around time)
     
     
 
@@ -103,8 +103,8 @@ def optimize(stg_dat,acws,apws):
     model.obj = Objective(rule=obj_expression,sense = minimize)
 
 
-    def C1(model, r, f, i, j ):
-        return model.x[r,f,i,j] <= model.b[f,i,j] 
+    def C1(model, f, i, j ):
+        return sum(model.x[r,f,i,j] for r in model.R) <= model.b[f,i,j] 
 
     # C1 Checks assignability 
 

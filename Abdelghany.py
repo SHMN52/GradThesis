@@ -88,7 +88,7 @@ def optimize(stg_dat,acws,apws):
     
     
     # Variables
-    model.x = Var(model.R,model.F,model.I,model.J, domain=Binary) #Assignment variable
+    model.x = Var(model.R,model.F,model.I,model.I, domain=Binary) #Assignment variable
     model.L = Var(model.F, domain=Binary) # cancellation variable
     model.m = Var(model.F, domain=NonNegativeIntegers) # Departure time variable for flight f
     model.n = Var(model.F, domain=NonNegativeIntegers) # Arrival variable for flight f
@@ -104,7 +104,7 @@ def optimize(stg_dat,acws,apws):
 
 
     def C1(model, r, f, i, j ):
-        return model.x[r,f,i,j] <= model.b[r,f,i,j] 
+        return model.x[r,f,i,j] <= model.b[f,i,j] 
 
     # C1 Checks assignability 
 
@@ -114,12 +114,12 @@ def optimize(stg_dat,acws,apws):
     # C2 states that in a single stage, an aircraft can only accompany 
 
     def C3(model, f):
-        return sum(model.x[r,f] for r in model.R ) == 1 - model.L[f]
+        return sum(model.x[r,f,i,j] for r in model.R for i in model.I for j in model.I) == 1 - model.L[f]
     
     # C3: A flight must be either assigned to an aircraft or be cancceled
 
-    def C4(model,r, f):
-        return model.m[f] >= model.x[r,f] * model.a[r]
+    # def C4(model,r, f):
+    #     return model.m[f] >= model.x[r,f,i,j] * model.a[r]
     
     # C4: if flight f is assined to aircraft r, it can depart only after its ready time
 
@@ -134,9 +134,8 @@ def optimize(stg_dat,acws,apws):
     # C6: a flight can only depart after it initial schedualed takeoff
 
     def C7(model, r, f, fp):
-        if model.t[fp] >= model.t[f]:
-            return sum(model.x[r,f,i,j] + model.x[r,fp,k,l] for i in model.I for j in model.I for k in model.I for l in model.I) <= 2 + Eps*(model.m[fp] - model.n[f])
-        return sum(model.x[r,f,i,j] + model.x[r,fp,k,l] for i in model.I for j in model.I for k in model.I for l in model.I) <= 2 + Eps*(model.m[f] - model.n[fp])   
+        return sum(model.x[r,f,i,j] for i in model.I for j in model.I) + sum(model.x[r,fp,i,j] for i in model.I for j in model.I) <= 2 + Eps*(model.m[fp] - model.n[f])
+        
 
     def C8(model, j):
         return sum(model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I) + model.ar[j] == sum(model.x[r,f,j,h] for r in model.R for f in model.F for h in model.I)
@@ -145,7 +144,7 @@ def optimize(stg_dat,acws,apws):
     model.Co1  = Constraint(model.R,model.F, rule=C1)
     #model.Co2  = Constraint(model.R, rule=C2)
     model.Co3  = Constraint(model.F, rule=C3)
-    model.Co4  = Constraint(model.R,model.F, rule=C4)
+    #model.Co4  = Constraint(model.R,model.F, rule=C4)
     model.Co5  = Constraint(model.F, rule=C5)
     model.Co6  = Constraint(model.F, rule=C6)
     model.Co7  = Constraint(model.R,model.F,model.F, rule=C7)

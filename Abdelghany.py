@@ -1,3 +1,4 @@
+from tokenize import String
 from pyomo.environ import *
 import pyomo.opt as pyo
 def optimize(stg_dat,acws,apws):
@@ -28,7 +29,7 @@ def optimize(stg_dat,acws,apws):
         for j in range(len(stg_dat)):
             if stg_dat[j].flight_id == f :
                 return stg_dat[j].origin
-    model.origin = Param(model.F, initialize = origin_init) # Origin on flights
+    model.origin = Param(model.F, initialize = origin_init ) # Origin on flights
 
     def Destination_init(model, f):
         for j in range(len(stg_dat)):
@@ -41,32 +42,32 @@ def optimize(stg_dat,acws,apws):
             k=0
             if acws[row][8].value == i:
                 k+=1
-        return k
-    model.ar = Param(model.I, initialize = airport_resource)
+        return int(k)
+    model.ar = Param(model.I, initialize = airport_resource, within = NonNegativeIntegers)
 
     def T_init(model, f):
         for j in range(len(stg_dat)):
             if stg_dat[j].flight_id == f :
-                return (stg_dat[j].planned_arrival - stg_dat[j].planned_departure)
-    model.T = Param(model.F, initialize=T_init) # Time of flights (minites)
+                return int(stg_dat[j].planned_arrival - stg_dat[j].planned_departure)
+    model.T = Param(model.F, initialize=T_init, within = PositiveIntegers) # Time of flights (minites)
     
     def c_init(model, r, f):
         for i in range(2, acws.max_row+1):
             if acws[i][0].value == r :
-                return acws[i][5].value * model.T[f]/60
+                return int(acws[i][5].value * model.T[f]/60)
         return M        
-    model.c = Param(model.R, model.F, initialize = c_init) # Cost of assigning resourse r to flight f (hourly operation cost of aircraft * time of flight)
+    model.c = Param(model.R, model.F, initialize = c_init, within = NonNegativeIntegers) # Cost of assigning resourse r to flight f (hourly operation cost of aircraft * time of flight)
     
-    model.cd = Param(model.F, initialize = (0.75*120)) # Estimated cost of flights delay per minute
+    model.cd = Param(model.F, initialize = (0.75*120), within = PositiveIntegers) # Estimated cost of flights delay per minute
     
     def t_init(model, f):
         for i in range(len(stg_dat)):
             if stg_dat[i].flight_id == f :
-                return stg_dat[i].planned_departure + stg_dat[i].delay
-    model.t = Param(model.F, initialize=t_init) # Scheduled departure time of flights (plus initial delay)
+                return int(stg_dat[i].planned_departure + stg_dat[i].delay)
+    model.t = Param(model.F, initialize=t_init, within = NonNegativeIntegers) # Scheduled departure time of flights (plus initial delay)
 
     
-    model.cc = Param(model.F, initialize = 50000) # Estimated cost of flight cancellation
+    model.cc = Param(model.F, initialize = 50000, within = PositiveIntegers) # Estimated cost of flight cancellation
     
     # def a_init(model, r):
     #     for i in range(2, acws.max_row+1):
@@ -80,7 +81,7 @@ def optimize(stg_dat,acws,apws):
         if model.origin[f]==i and model.dest[f]==j:
             return 1
         return 0
-    model.b = Param(model.F,model.I,model.I, initialize=b_init) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
+    model.b = Param(model.F,model.I,model.I, initialize=b_init, within = Binary) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
     
     
     

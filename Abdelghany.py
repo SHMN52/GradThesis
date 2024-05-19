@@ -142,7 +142,7 @@ def optimize(stg_dat,acws,apws):
         return sum(model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I) + model.ar[j] == sum(model.x[r,f,j,h] for r in model.R for f in model.F for h in model.I)
 
 
-    model.Co1  = Constraint(model.R,model.F, rule=C1)
+    model.Co1  = Constraint(model.F,model.I,model.I, rule=C1)
     #model.Co2  = Constraint(model.R, rule=C2)
     model.Co3  = Constraint(model.F, rule=C3)
     #model.Co4  = Constraint(model.R,model.F, rule=C4)

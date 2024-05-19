@@ -37,13 +37,12 @@ def optimize(stg_dat,acws,apws):
                 return stg_dat[j].dest
     model.dest = Param(model.F, initialize = Destination_init) # Destination on flights
 
-    def airport_resource(model, i):
-        for row in range(2, acws.max_row+1):
-            k=0
-            if acws[row][8].value == i:
-                k+=1
-        return int(k)
-    model.ar = Param(model.I, initialize = airport_resource, within = NonNegativeIntegers)
+
+    def a_init(model, r):
+        for i in range(2, acws.max_row+1):
+            if acws[i][0].value == r:
+                return acws[i][7].value + acws[i][6].value
+    model.a = Param(model.R, initialize=a_init) # Ready time of aircraft r (time of previus flight landing plus the turn-around time)
 
     def T_init(model, f):
         for j in range(len(stg_dat)):
@@ -77,8 +76,8 @@ def optimize(stg_dat,acws,apws):
     
     
 
-    def b_init(model, f, i, j):
-        if model.origin[f]==i and model.dest[f]==j:
+    def b_init(model,r, f, i, j):
+        if model.origin[f]==i and model.dest[f]==j and :
             return 1
         return 0
     model.b = Param(model.F,model.I,model.I, initialize=b_init, within = Binary) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
@@ -120,7 +119,7 @@ def optimize(stg_dat,acws,apws):
     # C3: A flight must be either assigned to an aircraft or be cancceled
 
     def C4(model, f):
-        return model.m[f] >= sum(model.x[r,f,i,j] for r in model.R for i in model.I for j in model.I) * model.a[r]
+        return model.m[f] >= sum(model.x[r,f,i,j]*model.a[r] for r in model.R for i in model.I for j in model.I)
     
     # C4: if flight f is assined to aircraft r, it can depart only after its ready time
 
@@ -140,7 +139,7 @@ def optimize(stg_dat,acws,apws):
     model.Co1  = Constraint(model.F,model.I,model.I, rule=C1)
     model.Co2  = Constraint(model.R, rule=C2)
     model.Co3  = Constraint(model.F, rule=C3)
-    model.Co4  = Constraint(model.R,model.F, rule=C4)
+    model.Co4  = Constraint(model.F, rule=C4)
     model.Co5  = Constraint(model.F, rule=C5)
     model.Co6  = Constraint(model.F, rule=C6)
     

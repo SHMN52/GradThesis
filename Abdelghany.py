@@ -143,7 +143,11 @@ def optimize(stg_dat,acws,apws,current_stage):
     
     # C6: a flight can only depart after it initial schedualed takeoff
 
+    def C7(model , i):
+        return sum(model.x[r,f,i,j] for r in model.R for f in model.F for j in model.I) <= model.depCap[i]
     
+    def C8(model , j):
+        return sum(model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I) <= model.arCap[j]
 
 
     model.Co1  = Constraint(model.R,model.F,model.I,model.I, rule=C1)
@@ -152,7 +156,8 @@ def optimize(stg_dat,acws,apws,current_stage):
     model.Co4  = Constraint(model.F, rule=C4)
     model.Co5  = Constraint(model.F, rule=C5)
     model.Co6  = Constraint(model.F, rule=C6)
-    
+    model.Co7  = Constraint(model.I, rule=C7)
+    model.Co8  = Constraint(model.I, rule=C8)
     
     
    

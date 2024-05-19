@@ -7,7 +7,6 @@ def optimize(stg_dat,acws,apws):
     
     # Sets rf import
     M = 999999999
-    Eps = 0.0000001
 
     def R_init(model):
        return [acws[i][0].value for i in range(2, acws.max_row+1)]
@@ -29,20 +28,20 @@ def optimize(stg_dat,acws,apws):
         for j in range(len(stg_dat)):
             if stg_dat[j].flight_id == f :
                 return stg_dat[j].origin
-    model.origin = Param(model.F, initialize = origin_init ) # Origin on flights
+    model.origin = Param(model.F, initialize = origin_init, within = Any) # Origin on flights
 
     def Destination_init(model, f):
         for j in range(len(stg_dat)):
             if stg_dat[j].flight_id == f :
                 return stg_dat[j].dest
-    model.dest = Param(model.F, initialize = Destination_init) # Destination on flights
+    model.dest = Param(model.F, initialize = Destination_init, within = Any) # Destination on flights
 
 
     def a_init(model, r):
         for i in range(2, acws.max_row+1):
             if acws[i][0].value == r:
                 return acws[i][7].value + acws[i][6].value
-    model.a = Param(model.R, initialize=a_init) # Ready time of aircraft r (time of previus flight landing plus the turn-around time)
+    model.a = Param(model.R, initialize=a_init, within = NonNegativeIntegers) # Ready time of aircraft r (time of previus flight landing plus the turn-around time)
 
     def T_init(model, f):
         for j in range(len(stg_dat)):
@@ -68,19 +67,14 @@ def optimize(stg_dat,acws,apws):
     
     model.cc = Param(model.F, initialize = 50000, within = PositiveIntegers) # Estimated cost of flight cancellation
     
-    # def a_init(model, r):
-    #     for i in range(2, acws.max_row+1):
-    #         if acws[i][0].value == r:
-    #             return acws[i][7].value + acws[i][6].value
-    # model.a = Param(model.R, initialize=a_init) # Ready time of aircraft r (time of previus flight landing plus the turn-around time)
-    
-    
 
     def b_init(model,r, f, i, j):
-        if model.origin[f]==i and model.dest[f]==j and :
-            return 1
+        for iter in range(2, acws.max_row+1):
+            if acws[iter][0].value == r :
+                if acws[iter][8].value == model.origin[f] and model.origin[f]==i and model.dest[f]==j:
+                    return 1
         return 0
-    model.b = Param(model.F,model.I,model.I, initialize=b_init, within = Binary) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
+    model.b = Param(model.R,model.F,model.I,model.I, initialize=b_init, within = Binary) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
     
     
     
@@ -103,8 +97,8 @@ def optimize(stg_dat,acws,apws):
     model.obj = Objective(rule=obj_expression,sense = minimize)
 
 
-    def C1(model, f, i, j ):
-        return sum(model.x[r,f,i,j] for r in model.R) <= model.b[f,i,j] 
+    def C1(model,r, f, i, j ):
+        return model.x[r,f,i,j] <= model.b[r,f,i,j] 
 
     # C1 Checks assignability 
 
@@ -136,7 +130,7 @@ def optimize(stg_dat,acws,apws):
     
 
 
-    model.Co1  = Constraint(model.F,model.I,model.I, rule=C1)
+    model.Co1  = Constraint(model.R,model.F,model.I,model.I, rule=C1)
     model.Co2  = Constraint(model.R, rule=C2)
     model.Co3  = Constraint(model.F, rule=C3)
     model.Co4  = Constraint(model.F, rule=C4)

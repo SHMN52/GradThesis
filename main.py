@@ -23,7 +23,7 @@ while current_stage <= 1:
                 if (ws[row][0].value == st[i].flight_id):
                     ws[row][4].value = current_stage
     
-    op=optimize(st,acws,apws)
+    op=optimize(st,acws,apws,current_stage)
 
     
     for f in op.F:

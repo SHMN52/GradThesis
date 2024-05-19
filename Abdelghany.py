@@ -1,6 +1,6 @@
 from pyomo.environ import *
 import pyomo.opt as pyo
-def optimize(stg_dat,acws,apws):
+def optimize(stg_dat,acws,apws,current_stage):
     
     model = ConcreteModel()
     
@@ -75,7 +75,23 @@ def optimize(stg_dat,acws,apws):
         return 0
     model.b = Param(model.R,model.F,model.I,model.I, initialize=b_init, within = Binary) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)
     
-    
+    def depCap_init(model, ap):
+        for i in range(2, apws.max_row+1):
+            if apws[i][0].value == ap :
+                for j in range(1,int(apws.max_column/4 +1)):
+                    if current_stage*60 <= apws[i][4*j].value and apws[i][4*j-1].value <= (current_stage - 1) * 60:
+                        return apws[i][4*j-3].value
+        return 0
+    model.depCap = Param(model.I, initialize=depCap_init)
+
+    def arCap_init(model, ap):
+        for i in range(2, apws.max_row+1):
+            if apws[i][0].value == ap :
+                for j in range(1,int(apws.max_column/4 +1)):
+                    if current_stage*60 <= apws[i][4*j].value and apws[i][4*j-1].value <= (current_stage - 1) * 60:
+                        return apws[i][4*j-2].value
+        return 0
+    model.arCap = Param(model.I, initialize=arCap_init)
     
 
 

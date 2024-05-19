@@ -36,11 +36,11 @@ def staging(curr_stg,ws):
     # step 3 : listing current stage flights (not in prevoius stages and depart before the arrival of critical flight)
     
     for i in range(len(f_sorted)):
-        if(f_sorted[i].planned_departure <= curr_stg*30):
+        if(f_sorted[i].planned_departure <= curr_stg*60):
             current_stage_flights.append(f_sorted[i])
             
     
     
-    return f_list
+    return current_stage_flights
    
 

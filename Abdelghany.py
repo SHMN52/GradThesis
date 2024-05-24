@@ -53,8 +53,9 @@ def optimize(stg_dat,acws,apws):
     
     def c_init(model, r, f):
         for i in range(2, acws.max_row+1):
-            if acws[i][0].value == r :
-                return int(acws[i][5].value * model.T[f]/60)
+            if acws[i][0].value == r:
+                if acws[i][4].value >= model.T[f]:
+                    return int(acws[i][5].value * model.T[f]/60)
         return M        
     model.c = Param(model.R, model.F, initialize = c_init, within = NonNegativeIntegers) # Cost of assigning resourse r to flight f (hourly operation cost of aircraft * time of flight)
     
@@ -78,7 +79,7 @@ def optimize(stg_dat,acws,apws):
     
 
     def b_init(model, f, i, j):
-        if model.origin[f]==i and model.dest[f]==j:
+        if model.origin[f]==i and model.dest[f]==j :
             return 1
         return 0
     model.b = Param(model.F,model.I,model.I, initialize=b_init, within = Binary) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)

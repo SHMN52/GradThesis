@@ -72,7 +72,7 @@ def optimize(stg_dat,acws,apws,current_stage):
         if model.origin[f]==i and model.dest[f]==j:
             for iter in range(2, acws.max_row+1):
                 if acws[iter][0].value == r :
-                    if acws[iter][8].value == model.origin[f]:
+                    if acws[iter][8].value == model.origin[f] and acws[iter][4].value >= model.T[f]:
                         return 1
         return 0
     model.b = Param(model.R,model.F,model.I,model.I, initialize=b_init, within = Binary) # determines whether aircraft r can service flight f in current stage (same location and enought range of fly)

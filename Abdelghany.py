@@ -129,8 +129,8 @@ def optimize(stg_dat,acws,apws):
     def C1(model, r, f):
         return model.x[r,f] <= model.b[r,f]
 
-    def C2(model, r):
-        return sum(model.x[r, f] for f in model.F) <= 1
+    def C2(model, f):
+        return sum(model.x[r, f] for r in model.R) <= 1
 
     def C3(model, f):
         return sum(model.x[r, f] for r in model.R) == 1 - model.L[f]
@@ -211,7 +211,7 @@ def optimize(stg_dat,acws,apws):
     
 
     model.Co1 = Constraint(model.R,model.F, rule=C1)
-    model.Co2 = Constraint(model.R, rule=C2)
+    model.Co2 = Constraint(model.F, rule=C2)
     model.Co3 = Constraint(model.F, rule=C3)
     model.Co4 = Constraint(model.R,model.F, rule=C4)
     model.Co5 = Constraint(model.F, rule=C5)

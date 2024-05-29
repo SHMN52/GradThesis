@@ -102,8 +102,8 @@ def optimize(stg_dat,acws):
     
     # C3: A flight must be either assigned to an aircraft or be cancceled
 
-    def C4(model,r, f):
-        return model.m[f] >= model.x[r,f] * model.a[r]
+    def C4(model,f):
+        return model.m[f] >= sum(model.x[r,f] * model.a[r] for r in model.R)
     
     # C4: if flight f is assined to aircraft r, it can depart only after its ready time
 

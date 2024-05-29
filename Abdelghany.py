@@ -37,13 +37,13 @@ def optimize(stg_dat,acws,apws):
                 return stg_dat[j].dest
     model.dest = Param(model.F, initialize = Destination_init) # Destination on flights
 
-    # def airport_resource(model, i):
-    #     for row in range(2, acws.max_row+1):
-    #         k=0
-    #         if acws[row][8].value == i:
-    #             k+=1
-    #     return int(k)
-    # model.ar = Param(model.I, initialize = airport_resource, within = NonNegativeIntegers)
+    def airport_resource(model, i):
+        for row in range(2, acws.max_row+1):
+            k=0
+            if acws[row][8].value == i:
+                k+=1
+        return int(k)
+    model.ar = Param(model.I, initialize = airport_resource, within = NonNegativeIntegers)
 
     def T_init(model, f):
         for j in range(len(stg_dat)):
@@ -140,7 +140,7 @@ def optimize(stg_dat,acws,apws):
         
 
     def C8(model, j):
-        return sum(model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I)  == sum(model.x[r,f,j,h] for r in model.R for f in model.F for h in model.I)
+        return sum(model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I) + model.ar[j]  >= sum(model.x[r,f,j,h] for r in model.R for f in model.F for h in model.I)
 
 
     model.Co1  = Constraint(model.F,model.I,model.I, rule=C1)

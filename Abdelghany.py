@@ -48,7 +48,7 @@ def optimize(stg_dat,acws):
     model.t = Param(model.F, initialize=t_init) # Scheduled departure time of flights (plus initial delay)
 
     
-    model.cc = Param(model.F, initialize = 50000) # Estimated cost of flight cancellation
+    model.cc = Param(model.F, initialize = 120000) # Estimated cost of flight cancellation
     
     def a_init(model, r):
         for i in range(2, acws.max_row+1):

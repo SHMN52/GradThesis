@@ -107,7 +107,7 @@ def optimize(stg_dat,acws,apws,current_stage):
     
     
     def obj_expression(model):
-        return ( sum( model.c[r, f] * model.x[r,f,i,j] for r in model.R for f in model.F for i in model.I for j in model.I) 
+        return ( sum( model.c[r, f] * sum(model.x[r,f,i,j] for i in model.I for j in model.I) for r in model.R for f in model.F ) 
                 +sum(model.cd[f] * (model.m[f]-model.t[f]) for f in model.F)
                 +sum(model.cc[f] * model.L[f] for f in model.F))
 

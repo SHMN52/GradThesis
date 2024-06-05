@@ -1,0 +1,3 @@
+3035 total delay
+2278 initial delay
+30 min

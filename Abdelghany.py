@@ -125,7 +125,7 @@ def optimize(stg_dat,acws):
     model.Co1  = Constraint(model.R,model.F, rule=C1)
     model.Co2  = Constraint(model.R, rule=C2)
     model.Co3  = Constraint(model.F, rule=C3)
-    model.Co4  = Constraint(model.R,model.F, rule=C4)
+    model.Co4  = Constraint(model.F, rule=C4)
     model.Co5  = Constraint(model.F, rule=C5)
     model.Co6  = Constraint(model.F, rule=C6)
     
